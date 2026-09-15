@@ -1,24 +1,27 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Heart, ShoppingBag, User, ArrowRight } from 'lucide-react';
 import { BrandLogo } from './BrandLogo';
-import { MainCategory } from '../types';
+import { Search, Heart, User, ShoppingBag, ArrowRight } from 'lucide-react';
+import { MoodCategory } from '../types';
 
 interface HeaderProps {
-  activeCategory: MainCategory;
-  onSelectCategory: (category: MainCategory) => void;
+  activeCategory: MoodCategory;
+  onSelectCategory: (category: MoodCategory) => void;
   cartCount: number;
   wishlistCount: number;
   onOpenCart: () => void;
   onOpenWishlist: () => void;
   onOpenSearch: () => void;
   onOpenAccount: () => void;
+  onOpenMoodQuiz: () => void;
+  onScrollTo12Moods: () => void;
+  onScrollToAbout: () => void;
 }
 
 const ANNOUNCEMENTS = [
-  'JEANS STARTING ₹1999',
-  'NEW SEASON ESSENTIALS — FREE SHIPPING OVER ₹1999',
-  'MEMBERS GET 10% OFF YOUR FIRST ORDER',
-  'AUTUMN / WINTER EDITORIAL COLLECTION OUT NOW',
+  '12 MOODS. 1 PERFECT MATCH. ♡',
+  'COMPLIMENTARY SHIPPING ON ALL ORDERS OVER ₹999 ♡',
+  '100% ORGANIC BOTANICALS & VEGAN PEPTIDES ♡',
+  'CHOOSE ANY 3 MOOD BALMS — SAVE 10% WITH CODE: MOODMATCH10 ♡',
 ];
 
 export const Header: React.FC<HeaderProps> = ({
@@ -30,165 +33,142 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenWishlist,
   onOpenSearch,
   onOpenAccount,
+  onOpenMoodQuiz,
+  onScrollTo12Moods,
+  onScrollToAbout,
 }) => {
-  const [announcementIndex, setAnnouncementIndex] = useState(0);
-  const [isScrolled, setIsScrolled] = useState(false);
+  const [announcementIdx, setAnnouncementIdx] = useState(0);
 
   useEffect(() => {
     const timer = setInterval(() => {
-      setAnnouncementIndex((prev) => (prev + 1) % ANNOUNCEMENTS.length);
+      setAnnouncementIdx((prev) => (prev + 1) % ANNOUNCEMENTS.length);
     }, 4500);
     return () => clearInterval(timer);
   }, []);
 
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
-    };
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  const navCategories: { id: MainCategory; label: string; isAccent?: boolean }[] = [
-    { id: 'WOMEN', label: 'WOMEN' },
-    { id: 'MEN', label: 'MEN' },
-    { id: 'KIDS', label: 'KIDS' },
-    { id: 'NEW ARRIVALS', label: 'NEW ARRIVALS' },
-    { id: 'DENIM', label: 'DENIM' },
-    { id: 'SALE', label: 'SALE', isAccent: true },
-  ];
+  const nextAnnouncement = () => {
+    setAnnouncementIdx((prev) => (prev + 1) % ANNOUNCEMENTS.length);
+  };
 
   return (
-    <header className="sticky top-0 z-40 w-full bg-[#FFFFFF] transition-shadow duration-200">
-      {/* 1. Top Announcement Bar */}
-      <div className="w-full bg-[#000000] text-[#FFFFFF] py-2 px-4 flex items-center justify-between text-[11px] sm:text-xs font-semibold uppercase tracking-[0.18em]">
-        <div className="hidden sm:block w-12" /> {/* Spacer for centering */}
-        
-        <button
-          onClick={() => onSelectCategory('DENIM')}
-          className="mx-auto flex items-center gap-2 hover:opacity-80 transition-opacity cursor-pointer text-center"
-        >
-          <span>{ANNOUNCEMENTS[announcementIndex]}</span>
-          <ArrowRight className="w-3 h-3 transition-transform group-hover:translate-x-0.5 shrink-0" />
-        </button>
-
-        <div className="hidden sm:flex items-center gap-3 text-[10px] tracking-wider text-[#A3A3A3]">
-          <span className="hover:text-white cursor-pointer transition-colors" onClick={onOpenAccount}>SIGN IN</span>
-          <span>•</span>
-          <span>INR (₹)</span>
+    <header className="sticky top-0 z-40 w-full bg-[#FFF8F2]/95 backdrop-blur-md border-b border-[#E8D3C2]/60 select-none transition-all">
+      {/* 1. Top Minimal Announcement Bar */}
+      <div className="w-full bg-[#7B2638] text-[#FFF8F2] px-4 py-2 text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.24em] flex items-center justify-between transition-colors">
+        <div className="flex-1 text-center truncate pr-2">
+          <span>{ANNOUNCEMENTS[announcementIdx]}</span>
         </div>
+        <button
+          onClick={nextAnnouncement}
+          className="p-1 hover:opacity-75 transition-opacity cursor-pointer flex items-center gap-1 text-[#FFF8F2]"
+          aria-label="Next announcement"
+        >
+          <ArrowRight className="w-3 h-3 stroke-[2]" />
+        </button>
       </div>
 
       {/* 2. Main Navigation Bar */}
-      <div
-        className={`w-full max-w-7xl mx-auto px-4 sm:px-8 transition-all duration-200 ${
-          isScrolled ? 'py-3.5 border-b border-[#E5E5E5]' : 'py-5 border-b border-transparent'
-        }`}
-      >
-        <div className="flex items-center justify-between gap-4">
-          {/* Logo on Left */}
-          <div className="flex items-center">
-            <BrandLogo
-              size="md"
-              variant="dark"
-              onClick={() => onSelectCategory('ALL')}
-            />
-          </div>
-
-          {/* Desktop Center Navigation Links */}
-          <nav className="hidden lg:flex items-center gap-8 text-xs font-bold uppercase tracking-[0.16em]">
-            {navCategories.map((cat) => {
-              const isActive = activeCategory === cat.id;
-              return (
-                <button
-                  key={cat.id}
-                  onClick={() => onSelectCategory(cat.id)}
-                  className={`relative py-1.5 transition-colors cursor-pointer ${
-                    cat.isAccent
-                      ? 'text-[#E30613] hover:text-[#B5000B]'
-                      : isActive
-                      ? 'text-[#000000]'
-                      : 'text-[#171717]/75 hover:text-[#000000]'
-                  }`}
-                >
-                  <span>{cat.label}</span>
-                  {isActive && !cat.isAccent && (
-                    <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#000000]" />
-                  )}
-                  {isActive && cat.isAccent && (
-                    <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#E30613]" />
-                  )}
-                </button>
-              );
-            })}
-          </nav>
-
-          {/* Desktop Right Utilities (Search, Wishlist, Account, Bag) */}
-          <div className="flex items-center gap-3 sm:gap-5">
-            <button
-              onClick={onOpenSearch}
-              className="p-1.5 text-[#000000] hover:opacity-60 transition-opacity cursor-pointer"
-              aria-label="Search items"
-            >
-              <Search className="w-5 h-5 stroke-[1.5]" />
-            </button>
-
-            <button
-              onClick={onOpenAccount}
-              className="hidden sm:block p-1.5 text-[#000000] hover:opacity-60 transition-opacity cursor-pointer"
-              aria-label="My Account"
-            >
-              <User className="w-5 h-5 stroke-[1.5]" />
-            </button>
-
-            <button
-              onClick={onOpenWishlist}
-              className="relative p-1.5 text-[#000000] hover:opacity-60 transition-opacity cursor-pointer"
-              aria-label="View Wishlist"
-            >
-              <Heart className="w-5 h-5 stroke-[1.5]" />
-              {wishlistCount > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 min-w-[17px] h-[17px] rounded-full bg-[#E30613] text-white text-[10px] font-bold flex items-center justify-center px-1">
-                  {wishlistCount}
-                </span>
-              )}
-            </button>
-
-            <button
-              onClick={onOpenCart}
-              className="relative p-1.5 text-[#000000] hover:opacity-60 transition-opacity cursor-pointer flex items-center gap-2"
-              aria-label="Shopping Bag"
-            >
-              <ShoppingBag className="w-5 h-5 stroke-[1.5]" />
-              {cartCount > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 min-w-[17px] h-[17px] rounded-full bg-[#000000] text-white text-[10px] font-bold flex items-center justify-center px-1">
-                  {cartCount}
-                </span>
-              )}
-            </button>
-          </div>
+      <div className="max-w-7xl mx-auto px-4 sm:px-8 h-16 sm:h-20 flex items-center justify-between gap-4">
+        {/* Left: Brand Logo */}
+        <div className="flex items-center">
+          <a
+            href="#"
+            onClick={(e) => {
+              e.preventDefault();
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            className="cursor-pointer"
+          >
+            <BrandLogo variant="burgundy" size="md" />
+          </a>
         </div>
 
-        {/* Mobile Horizontal Category Pills below header for easy tapping */}
-        <div className="lg:hidden flex items-center gap-4 overflow-x-auto no-scrollbar pt-3 text-[11px] font-bold tracking-[0.14em] uppercase border-t border-[#E5E5E5] mt-3">
-          {navCategories.map((cat) => {
-            const isActive = activeCategory === cat.id;
-            return (
-              <button
-                key={cat.id}
-                onClick={() => onSelectCategory(cat.id)}
-                className={`py-1.5 whitespace-nowrap cursor-pointer transition-colors ${
-                  cat.isAccent
-                    ? 'text-[#E30613]'
-                    : isActive
-                    ? 'text-[#000000] border-b-2 border-[#000000]'
-                    : 'text-[#666666]'
-                }`}
-              >
-                {cat.label}
-              </button>
-            );
-          })}
+        {/* Center: Editorial Nav Links (Clean uppercase typography with generous spacing) */}
+        <nav className="hidden md:flex items-center gap-8 lg:gap-10 text-xs font-bold uppercase tracking-[0.22em] text-[#111111]">
+          <button
+            onClick={() => {
+              onSelectCategory('ALL');
+              onScrollTo12Moods();
+            }}
+            className="hover:text-[#7B2638] transition-colors cursor-pointer py-1 relative after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[1.5px] after:bg-[#7B2638] hover:after:w-full after:transition-all"
+          >
+            NEW
+          </button>
+          <button
+            onClick={onScrollTo12Moods}
+            className="hover:text-[#7B2638] transition-colors cursor-pointer py-1 text-[#7B2638] font-black relative after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-full after:h-[1.5px] after:bg-[#7B2638]"
+          >
+            12 MOODS
+          </button>
+          <button
+            onClick={() => {
+              onSelectCategory('ALL');
+              onScrollTo12Moods();
+            }}
+            className="hover:text-[#7B2638] transition-colors cursor-pointer py-1 relative after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[1.5px] after:bg-[#7B2638] hover:after:w-full after:transition-all"
+          >
+            SHOP
+          </button>
+          <button
+            onClick={onScrollToAbout}
+            className="hover:text-[#7B2638] transition-colors cursor-pointer py-1 relative after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[1.5px] after:bg-[#7B2638] hover:after:w-full after:transition-all"
+          >
+            ABOUT
+          </button>
+          <button
+            onClick={onOpenMoodQuiz}
+            className="text-[11px] font-bold px-3 py-1 rounded-full border border-[#7B2638] text-[#7B2638] hover:bg-[#7B2638] hover:text-[#FFF8F2] transition-colors cursor-pointer flex items-center gap-1"
+          >
+            <span>MATCH QUIZ</span>
+            <span>♡</span>
+          </button>
+        </nav>
+
+        {/* Right Side: Utilities (SEARCH | ♡ | ACCOUNT | BAG) */}
+        <div className="flex items-center gap-4 sm:gap-6 text-xs font-bold uppercase tracking-[0.16em] text-[#111111]">
+          {/* Search */}
+          <button
+            onClick={onOpenSearch}
+            className="flex items-center gap-1.5 hover:text-[#7B2638] transition-colors cursor-pointer py-1"
+            aria-label="Search moods"
+          >
+            <Search className="w-4 h-4 stroke-[1.75]" />
+            <span className="hidden sm:inline text-[11px]">SEARCH</span>
+          </button>
+
+          {/* Wishlist */}
+          <button
+            onClick={onOpenWishlist}
+            className="relative flex items-center gap-1.5 hover:text-[#7B2638] transition-colors cursor-pointer py-1"
+            aria-label="Saved items"
+          >
+            <Heart className={`w-4 h-4 stroke-[1.75] ${wishlistCount > 0 ? 'fill-[#7B2638] text-[#7B2638]' : ''}`} />
+            <span className="hidden sm:inline text-[11px]">SAVED</span>
+            {wishlistCount > 0 && (
+              <span className="text-[10px] font-mono font-bold bg-[#7B2638] text-white w-4 h-4 rounded-full flex items-center justify-center -ml-0.5">
+                {wishlistCount}
+              </span>
+            )}
+          </button>
+
+          {/* Account */}
+          <button
+            onClick={onOpenAccount}
+            className="hidden sm:flex items-center gap-1.5 hover:text-[#7B2638] transition-colors cursor-pointer py-1"
+            aria-label="Member account"
+          >
+            <User className="w-4 h-4 stroke-[1.75]" />
+            <span className="text-[11px]">ACCOUNT</span>
+          </button>
+
+          {/* Bag */}
+          <button
+            onClick={onOpenCart}
+            className="flex items-center gap-2 bg-[#7B2638] hover:bg-[#111111] text-[#FFF8F2] px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-full transition-colors cursor-pointer shadow-xs"
+            aria-label="Open bag"
+          >
+            <ShoppingBag className="w-4 h-4 stroke-[1.75]" />
+            <span className="text-[11px] tracking-wider">BAG ({cartCount})</span>
+          </button>
         </div>
       </div>
     </header>

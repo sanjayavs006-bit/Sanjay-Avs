@@ -1,6 +1,7 @@
 import React from 'react';
 import { X, Heart, Trash2, ShoppingBag } from 'lucide-react';
 import { Product } from '../types';
+import { BalmCompactVisual } from './BalmCompactVisual';
 
 interface WishlistDrawerProps {
   isOpen: boolean;
@@ -30,85 +31,89 @@ export const WishlistDrawer: React.FC<WishlistDrawerProps> = ({
       />
 
       <div className="fixed inset-y-0 right-0 max-w-full flex pl-10">
-        <div className="w-screen max-w-md bg-[#FFFFFF] text-[#000000] shadow-2xl flex flex-col">
+        <div className="w-screen max-w-md bg-[#FFF8F2] text-[#111111] shadow-2xl flex flex-col border-l border-[#E8D3C2]">
           {/* Header */}
-          <div className="px-6 py-5 border-b border-[#E5E5E5] flex items-center justify-between">
+          <div className="px-6 py-5 border-b border-[#E8D3C2] flex items-center justify-between bg-white">
             <div className="flex items-center gap-2">
-              <Heart className="w-5 h-5 fill-[#E30613] text-[#E30613]" />
-              <h2 className="text-sm font-black uppercase tracking-[0.2em] text-[#000000]">
-                SAVED ITEMS ({wishlistProducts.length})
+              <Heart className="w-5 h-5 fill-[#7B2638] text-[#7B2638]" />
+              <h2 className="text-sm font-black uppercase tracking-[0.24em] text-[#111111]">
+                SAVED MOODS ({wishlistProducts.length})
               </h2>
             </div>
             <button
               onClick={onClose}
-              className="p-1 text-[#000000] hover:opacity-60 transition-opacity cursor-pointer"
+              className="p-1.5 rounded-full hover:bg-[#F8DDE0] text-[#7B2638] transition-colors cursor-pointer"
               aria-label="Close wishlist"
             >
-              <X className="w-5 h-5 stroke-[1.5]" />
+              <X className="w-4 h-4" />
             </button>
           </div>
 
           {/* List */}
-          <div className="flex-1 overflow-y-auto p-6 space-y-6">
+          <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
             {wishlistProducts.length === 0 ? (
-              <div className="h-full flex flex-col items-center justify-center text-center space-y-4 py-16">
-                <div className="w-16 h-16 rounded-full bg-[#F7F7F5] flex items-center justify-center text-[#666666]">
-                  <Heart className="w-7 h-7 stroke-[1.25]" />
+              <div className="h-full flex flex-col items-center justify-center text-center py-16 space-y-4">
+                <div className="w-16 h-16 rounded-full bg-[#F8DDE0] flex items-center justify-center text-2xl text-[#7B2638]">
+                  ♡
                 </div>
                 <div className="space-y-1">
-                  <h3 className="text-sm font-bold uppercase tracking-[0.2em] text-[#000000]">
-                    YOUR WISHLIST IS EMPTY
-                  </h3>
-                  <p className="text-xs text-[#666666] tracking-wide">
-                    Tap the heart icon on any product to save it here for later.
+                  <p className="text-base font-black uppercase tracking-tight text-[#111111]">
+                    NO MOODS SAVED YET
+                  </p>
+                  <p className="text-xs text-[#111111]/70 font-serif italic max-w-xs">
+                    Tap the heart icon on any compact to bookmark your favorite moods.
                   </p>
                 </div>
                 <button
                   onClick={onClose}
-                  className="px-6 py-3 bg-[#000000] text-white text-xs font-bold uppercase tracking-[0.2em] hover:bg-[#E30613] transition-colors cursor-pointer"
+                  className="px-6 py-3 bg-[#7B2638] hover:bg-[#111111] text-[#FFF8F2] text-xs font-bold uppercase tracking-[0.2em] rounded-full transition-colors cursor-pointer"
                 >
-                  EXPLORE STYLES
+                  DISCOVER THE 12 MOODS
                 </button>
               </div>
             ) : (
               wishlistProducts.map((product) => (
                 <div
                   key={product.id}
-                  className="flex gap-4 pb-6 border-b border-[#E5E5E5] last:border-b-0 cursor-pointer group"
+                  className="flex gap-4 p-3.5 bg-white rounded-2xl border border-[#E8D3C2] shadow-xs cursor-pointer hover:border-[#7B2638]/40 transition-colors"
                   onClick={() => {
                     onSelectProduct(product);
                     onClose();
                   }}
                 >
-                  <div className="w-20 aspect-[3/4] bg-[#F7F7F5] shrink-0 overflow-hidden">
-                    <img
-                      src={product.image}
-                      alt={product.name}
-                      className="w-full h-full object-cover object-top"
-                    />
+                  <div className="w-16 h-16 shrink-0 flex items-center justify-center p-1 bg-[#FFF8F2] rounded-xl border border-[#E8D3C2]/60">
+                    <BalmCompactVisual product={product} size="sm" view="top" showShadow={false} />
                   </div>
 
                   <div className="flex-1 flex flex-col justify-between">
-                    <div>
-                      <div className="flex items-start justify-between gap-2">
-                        <h4 className="text-xs font-bold uppercase tracking-wider text-[#000000] line-clamp-1 group-hover:text-[#E30613]">
-                          {product.name}
-                        </h4>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onRemoveWishlist(product);
-                          }}
-                          className="text-[#8E8E93] hover:text-[#E30613] transition-colors p-1"
-                          aria-label="Remove from wishlist"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-[10px] font-mono font-bold text-[#7B2638]">
+                            {product.number}
+                          </span>
+                          <h4 className="text-xs font-black uppercase text-[#111111]">
+                            {product.name}
+                          </h4>
+                        </div>
+                        <span className="text-[11px] text-[#7B2638] font-serif italic block">
+                          {product.personality}
+                        </span>
+                        <span className="text-xs font-black text-[#111111] mt-1 block">
+                          ₹{product.price}
+                        </span>
                       </div>
-                      <p className="text-[11px] text-[#666666]">{product.category} • {product.fit}</p>
-                      <p className="text-xs font-black text-[#000000] pt-1">
-                        ₹{product.price.toLocaleString('en-IN')}
-                      </p>
+
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onRemoveWishlist(product);
+                        }}
+                        className="text-[#111111]/40 hover:text-[#7B2638] transition-colors p-1 cursor-pointer"
+                        aria-label="Remove from wishlist"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
                     </div>
 
                     <button
@@ -116,10 +121,10 @@ export const WishlistDrawer: React.FC<WishlistDrawerProps> = ({
                         e.stopPropagation();
                         onMoveToBag(product);
                       }}
-                      className="mt-2 py-2 px-3 bg-[#000000] hover:bg-[#E30613] text-white text-[11px] font-bold uppercase tracking-[0.16em] flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                      className="mt-2 py-2 px-3 bg-[#7B2638] hover:bg-[#111111] text-white text-[10px] font-bold uppercase tracking-wider rounded-full transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
                     >
-                      <ShoppingBag className="w-3.5 h-3.5" />
-                      <span>ADD TO BAG</span>
+                      <ShoppingBag className="w-3 h-3" />
+                      <span>MOVE TO BAG</span>
                     </button>
                   </div>
                 </div>

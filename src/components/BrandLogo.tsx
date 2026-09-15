@@ -1,41 +1,35 @@
 import React from 'react';
 
 interface BrandLogoProps {
-  variant?: 'dark' | 'light' | 'red';
-  size?: 'sm' | 'md' | 'lg';
+  variant?: 'burgundy' | 'dark' | 'light';
+  size?: 'sm' | 'md' | 'lg' | 'xl';
   className?: string;
-  onClick?: () => void;
 }
 
 export const BrandLogo: React.FC<BrandLogoProps> = ({
-  variant = 'dark',
+  variant = 'burgundy',
   size = 'md',
   className = '',
-  onClick,
 }) => {
-  const textColors = {
-    dark: 'text-[#000000]',
-    light: 'text-[#FFFFFF]',
-    red: 'text-[#E30613]',
+  const sizeClasses = {
+    sm: 'text-sm sm:text-base tracking-[0.24em]',
+    md: 'text-lg sm:text-xl tracking-[0.28em]',
+    lg: 'text-2xl sm:text-3xl tracking-[0.3em]',
+    xl: 'text-3xl sm:text-5xl tracking-[0.32em]',
   };
 
-  const fontSizes = {
-    sm: 'text-base tracking-[0.24em]',
-    md: 'text-xl sm:text-2xl tracking-[0.28em]',
-    lg: 'text-3xl sm:text-4xl tracking-[0.32em]',
+  const colorClasses = {
+    burgundy: 'text-[#7B2638]',
+    dark: 'text-[#111111]',
+    light: 'text-[#FFF8F2]',
   };
 
   return (
-    <div
-      id="brand-logo"
-      onClick={onClick}
-      className={`inline-flex items-center gap-1.5 select-none font-sans font-black uppercase ${onClick ? 'cursor-pointer' : ''} ${className}`}
-    >
-      <span className={`transition-colors duration-150 ${textColors[variant]} ${fontSizes[size]}`}>
-        MOODY MATCH
+    <div className={`inline-flex items-center gap-1.5 font-sans font-black uppercase select-none ${sizeClasses[size]} ${colorClasses[variant]} ${className}`}>
+      <span>MOODY MATCH</span>
+      <span className="font-serif font-normal text-xs sm:text-sm tracking-normal text-[#C96B7B]">
+        ♡
       </span>
-      {/* Signature Red Fashion Square Accent */}
-      <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-[#E30613] inline-block shrink-0 mt-[-2px]" />
     </div>
   );
 };

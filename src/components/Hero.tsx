@@ -1,71 +1,220 @@
-import React from 'react';
-import { ArrowRight } from 'lucide-react';
-import { MainCategory } from '../types';
+import React, { useState } from 'react';
+import { ArrowRight, Sparkles, Heart } from 'lucide-react';
+import { BalmCompactVisual } from './BalmCompactVisual';
+import { MOODY_PRODUCTS } from '../data/moodyProducts';
+import { Product } from '../types';
 
 interface HeroProps {
-  onShopNow: (category: MainCategory) => void;
+  onShopAll: () => void;
+  onOpenMoodQuiz: () => void;
+  onSelectProduct: (product: Product) => void;
 }
 
-export const Hero: React.FC<HeroProps> = ({ onShopNow }) => {
+export const Hero: React.FC<HeroProps> = ({ onShopAll, onOpenMoodQuiz, onSelectProduct }) => {
+  // Featured heroes to toggle: HEART (#01) and TEDDY (#02)
+  const [featuredIdx, setFeaturedIdx] = useState(0);
+  const featuredProduct = MOODY_PRODUCTS[featuredIdx];
+
   return (
-    <section className="relative w-full bg-[#E30613] text-white overflow-hidden select-none min-h-[85vh] sm:min-h-[92vh] flex items-center">
-      {/* Background & Model Visual Layout */}
-      <div className="absolute inset-0 w-full h-full flex justify-center items-end sm:items-center">
-        {/* Editorial Campaign Model Image with Solid Bold Red Studio Background */}
-        <img
-          src="https://images.unsplash.com/photo-1509631179647-0177331693ae?auto=format&fit=crop&w=1600&q=85"
-          alt="New Season Editorial Campaign"
-          className="w-full h-full object-cover object-top sm:object-center brightness-[0.98] contrast-[1.05]"
-          loading="eager"
-        />
-        {/* Subtle vignette / tonal blend for crisp typography legibility */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#E30613]/90 via-transparent to-[#E30613]/30 sm:bg-gradient-to-r sm:from-[#E30613]/85 sm:via-[#E30613]/40 sm:to-transparent" />
-      </div>
+    <section className="relative w-full bg-gradient-to-b from-[#FFF8F2] via-[#F8DDE0]/50 to-[#FFF8F2] border-b border-[#E8D3C2]/60 overflow-hidden select-none">
+      {/* Decorative subtle aesthetic ambient glow */}
+      <div className="absolute top-10 left-1/4 w-96 h-96 bg-[#F4C7CE]/30 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-10 right-1/4 w-96 h-96 bg-[#E8D3C2]/40 rounded-full blur-3xl pointer-events-none" />
 
-      {/* Hero Content Overlay */}
-      <div className="relative z-10 w-full max-w-7xl mx-auto px-6 sm:px-12 py-16 sm:py-24 flex flex-col justify-end sm:justify-center min-h-[80vh]">
-        <div className="max-w-xl space-y-4 sm:space-y-6">
-          <div className="inline-block">
-            <span className="text-[11px] sm:text-xs font-bold uppercase tracking-[0.3em] text-white/90 bg-black/20 px-2.5 py-1 backdrop-blur-xs">
-              AUTUMN / WINTER 2026
-            </span>
+      <div className="max-w-7xl mx-auto px-4 sm:px-8 py-12 sm:py-20 lg:py-24">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
+          {/* Left Column: Minimal Editorial Typography (5 cols) */}
+          <div className="lg:col-span-6 space-y-6 sm:space-y-8 z-10">
+            {/* Small uppercase eyebrow label */}
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#FFFFFF]/80 border border-[#7B2638]/15 text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.24em] text-[#7B2638] shadow-xs">
+              <Sparkles className="w-3 h-3 text-[#7B2638]" />
+              <span>COLLECTIBLE CLEAN LIP LUXURY</span>
+            </div>
+
+            {/* Main Headline */}
+            <div className="space-y-2">
+              <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black uppercase tracking-tight text-[#111111] leading-[0.95] font-sans">
+                YOUR MOOD.
+                <br />
+                <span className="text-[#7B2638] flex items-center gap-3">
+                  YOUR BALM.
+                  <span className="font-serif font-normal text-3xl sm:text-5xl text-[#C96B7B]">
+                    ♡
+                  </span>
+                </span>
+              </h1>
+            </div>
+
+            {/* Supporting Text */}
+            <p className="text-sm sm:text-base text-[#111111]/80 max-w-md font-normal leading-relaxed tracking-wide">
+              12 moods. 12 colors. Find the one that matches you. Small round collectible compacts infused with organic botanicals, vegan peptides, and pure mood magic.
+            </p>
+
+            {/* CTAs */}
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-2">
+              <button
+                onClick={onShopAll}
+                className="px-7 py-4 bg-[#7B2638] hover:bg-[#111111] text-[#FFF8F2] text-xs font-black uppercase tracking-[0.22em] rounded-full transition-all flex items-center justify-center gap-2 cursor-pointer shadow-sm active:scale-98"
+              >
+                <span>SHOP ALL MOODS</span>
+                <ArrowRight className="w-4 h-4 stroke-[2]" />
+              </button>
+
+              <button
+                onClick={onOpenMoodQuiz}
+                className="px-6 py-4 bg-[#FFFFFF] hover:bg-[#F8DDE0] border border-[#7B2638]/30 text-[#7B2638] text-xs font-bold uppercase tracking-[0.2em] rounded-full transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-98"
+              >
+                <Heart className="w-3.5 h-3.5 fill-[#7B2638]" />
+                <span>FIND YOUR MOOD</span>
+              </button>
+            </div>
+
+            {/* Mini Selector Toggles between #01 Heart and #02 Teddy */}
+            <div className="pt-4 flex items-center gap-4 text-[11px] font-bold tracking-wider text-[#7B2638]">
+              <span className="text-[10px] text-[#111111]/60 uppercase tracking-[0.2em]">FEATURED:</span>
+              <button
+                onClick={() => setFeaturedIdx(0)}
+                className={`px-3 py-1 rounded-full text-xs font-bold transition-all cursor-pointer ${
+                  featuredIdx === 0
+                    ? 'bg-[#7B2638] text-white'
+                    : 'bg-[#FFFFFF] border border-[#7B2638]/20 text-[#7B2638] hover:border-[#7B2638]'
+                }`}
+              >
+                #01 HEART
+              </button>
+              <button
+                onClick={() => setFeaturedIdx(1)}
+                className={`px-3 py-1 rounded-full text-xs font-bold transition-all cursor-pointer ${
+                  featuredIdx === 1
+                    ? 'bg-[#7B2638] text-white'
+                    : 'bg-[#FFFFFF] border border-[#7B2638]/20 text-[#7B2638] hover:border-[#7B2638]'
+                }`}
+              >
+                #02 TEDDY
+              </button>
+              <button
+                onClick={() => setFeaturedIdx(3)}
+                className={`px-3 py-1 rounded-full text-xs font-bold transition-all cursor-pointer ${
+                  featuredIdx === 3
+                    ? 'bg-[#7B2638] text-white'
+                    : 'bg-[#FFFFFF] border border-[#7B2638]/20 text-[#7B2638] hover:border-[#7B2638]'
+                }`}
+              >
+                #04 PEACH
+              </button>
+            </div>
+
+            {/* Key Quality Pillars */}
+            <div className="pt-6 border-t border-[#E8D3C2]/60 grid grid-cols-3 gap-4 text-center sm:text-left">
+              <div>
+                <span className="block text-base sm:text-lg font-black text-[#7B2638]">100%</span>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-[#111111]/70">
+                  Vegan & Clean
+                </span>
+              </div>
+              <div>
+                <span className="block text-base sm:text-lg font-black text-[#7B2638]">15g</span>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-[#111111]/70">
+                  Pocket Compact
+                </span>
+              </div>
+              <div>
+                <span className="block text-base sm:text-lg font-black text-[#7B2638]">₹499</span>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-[#111111]/70">
+                  Collector Price
+                </span>
+              </div>
+            </div>
           </div>
 
-          <div className="space-y-1 sm:space-y-2">
-            <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-black tracking-[-0.03em] uppercase leading-[0.92] text-white font-sans">
-              NEW SEASON
-              <br />
-              <span className="font-light tracking-tight">ESSENTIALS</span>
-            </h1>
-          </div>
+          {/* Right Column: High-Fashion Beauty Editorial + Compact Packaging Composition (7 cols) */}
+          <div className="lg:col-span-6 relative flex flex-col items-center justify-center">
+            {/* Main Creative Split Card */}
+            <div className="relative w-full max-w-lg aspect-[4/5] sm:aspect-[1/1] bg-[#FFFFFF] rounded-2xl p-6 sm:p-8 shadow-compact border border-[#E8D3C2] flex flex-col justify-between overflow-hidden group">
+              {/* Background ambient blush splash */}
+              <div
+                className="absolute inset-0 opacity-20 pointer-events-none transition-colors duration-500"
+                style={{ backgroundColor: featuredProduct.tinColor }}
+              />
 
-          <p className="text-xs sm:text-sm font-medium tracking-wide text-white/90 max-w-md leading-relaxed">
-            Contemporary silhouettes, heavy-gauge organic cotton basics, and relaxed tailoring. Designed for everyday confidence.
-          </p>
+              {/* Top Details Bar on Studio Card */}
+              <div className="relative z-10 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-[#7B2638] animate-pulse" />
+                  <span className="text-[10px] font-mono tracking-widest font-bold text-[#7B2638] uppercase">
+                    CAMPAIGN NO. {featuredProduct.number}
+                  </span>
+                </div>
+                <span className="text-xs font-serif italic text-[#7B2638]">{featuredProduct.quote}</span>
+              </div>
 
-          <div className="pt-2 sm:pt-4 flex flex-wrap items-center gap-3 sm:gap-4">
-            <button
-              onClick={() => onShopNow('NEW ARRIVALS')}
-              className="group inline-flex items-center gap-3 bg-[#FFFFFF] text-[#000000] px-7 py-3.5 sm:px-8 sm:py-4 text-xs font-black uppercase tracking-[0.2em] transition-all hover:bg-[#000000] hover:text-white cursor-pointer active:scale-98"
-            >
-              <span>SHOP NOW</span>
-              <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-            </button>
+              {/* Center Composition: The Round Pink Compact + Model Inset */}
+              <div className="relative z-10 my-auto flex flex-col items-center justify-center py-4">
+                {/* Visual Compact Container */}
+                <div
+                  className="cursor-pointer"
+                  onClick={() => onSelectProduct(featuredProduct)}
+                  title="Click to view details"
+                >
+                  <BalmCompactVisual
+                    product={featuredProduct}
+                    size="lg"
+                    view="top"
+                    className="transform transition-transform duration-700 group-hover:scale-105"
+                  />
+                </div>
 
-            <button
-              onClick={() => onShopNow('DENIM')}
-              className="inline-flex items-center gap-2 bg-transparent text-white border border-white/80 px-6 py-3.5 sm:px-7 sm:py-4 text-xs font-bold uppercase tracking-[0.2em] transition-all hover:bg-white/10 cursor-pointer"
-            >
-              <span>EXPLORE DENIM</span>
-            </button>
+                {/* Floating Authentic Beauty Model Inset Card */}
+                <div className="absolute -bottom-2 -right-2 sm:-right-4 w-32 sm:w-40 aspect-[3/4] rounded-xl overflow-hidden shadow-xl border-2 border-white bg-[#F8DDE0]">
+                  <img
+                    src={featuredProduct.modelImage}
+                    alt={`${featuredProduct.name} Beauty Model`}
+                    className="w-full h-full object-cover object-center transform transition-transform duration-500 hover:scale-110"
+                  />
+                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-2 text-white">
+                    <span className="text-[9px] font-bold uppercase tracking-wider block">
+                      {featuredProduct.personality}
+                    </span>
+                    <span className="text-[8px] text-white/80 block">Hydrated Gloss Finish</span>
+                  </div>
+                </div>
+
+                {/* Floating Authentic Lip Macro Inset Card */}
+                <div className="absolute -top-2 -left-2 sm:-left-4 w-24 sm:w-28 aspect-square rounded-full overflow-hidden shadow-lg border-2 border-white bg-[#F8DDE0] hidden sm:block">
+                  <img
+                    src={featuredProduct.lipMacroImage}
+                    alt="Hydrated Lip Texture"
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-black/15 flex items-center justify-center">
+                    <span className="text-[8px] font-bold uppercase tracking-wider text-white bg-black/50 px-1.5 py-0.5 rounded-full">
+                      GLAZE
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Bottom Details on Studio Card */}
+              <div className="relative z-10 pt-4 border-t border-[#E8D3C2]/80 flex items-center justify-between">
+                <div>
+                  <h3 className="text-sm font-black uppercase tracking-wider text-[#111111]">
+                    {featuredProduct.title}
+                  </h3>
+                  <p className="text-xs text-[#7B2638] font-medium">{featuredProduct.flavor}</p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="text-sm font-black text-[#111111]">₹{featuredProduct.price}</span>
+                  <button
+                    onClick={() => onSelectProduct(featuredProduct)}
+                    className="px-3.5 py-1.5 bg-[#7B2638] hover:bg-[#111111] text-white text-[10px] font-bold uppercase tracking-wider rounded-full transition-colors cursor-pointer"
+                  >
+                    EXPLORE
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-
-      {/* Minimalist Campaign Sub-Label in Bottom Right on Desktop */}
-      <div className="hidden md:flex absolute bottom-8 right-12 z-10 text-right flex-col text-white/80 text-[10px] font-mono tracking-widest uppercase">
-        <span>CAMPAIGN // 01</span>
-        <span className="text-white font-bold">KONTRAST & SILHOUETTE</span>
       </div>
     </section>
   );

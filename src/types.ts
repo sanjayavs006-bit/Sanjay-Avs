@@ -1,69 +1,83 @@
-export type MainCategory = 'ALL' | 'WOMEN' | 'MEN' | 'KIDS' | 'NEW ARRIVALS' | 'DENIM' | 'SALE';
+export type MoodCategory = 
+  | 'ALL' 
+  | 'ROMANTIC & PLAYFUL' 
+  | 'COZY & INDULGENT' 
+  | 'FRESH & DREAMY' 
+  | 'BESTSELLERS'
+  | 'SETS & GIFTS';
 
-export interface ProductColor {
-  name: string;
-  hex: string;
-}
+export type MoodVibe = 
+  | 'ROMANTIC' 
+  | 'COZY' 
+  | 'DREAMY' 
+  | 'SWEET' 
+  | 'HAPPY' 
+  | 'FRESH' 
+  | 'CALM' 
+  | 'PLAYFUL' 
+  | 'FUN' 
+  | 'INDULGENT' 
+  | 'MYSTERIOUS';
+
+export type IconSymbol = 
+  | 'heart' 
+  | 'teddy' 
+  | 'cloud' 
+  | 'peach' 
+  | 'sun' 
+  | 'green-heart' 
+  | 'moon' 
+  | 'daisy' 
+  | 'coffee' 
+  | 'cherry' 
+  | 'chocolate' 
+  | 'cat';
 
 export interface Product {
   id: string;
-  name: string;
-  category: 'WOMEN' | 'MEN' | 'KIDS' | 'NEW ARRIVALS' | 'DENIM';
-  subCategory: string;
-  price: number;
+  number: string; // e.g. '#01'
+  name: string; // e.g. 'HEART'
+  personality: string; // e.g. 'Romantic'
+  title: string; // e.g. 'HEART — Romantic'
+  tinColor: string; // background pastel of the compact
+  tinAccentColor: string; // dark wine/burgundy or contrast
+  balmColor: string; // color of the balm inside
+  colorName: string; // e.g. 'Soft Blush Pink'
+  flavor: string; // e.g. 'Wild Strawberry & Shea'
+  finish: string; // e.g. 'Dewy Rose Glaze'
+  moodVibe: MoodVibe;
+  category: MoodCategory;
+  price: number; // ₹499
   originalPrice?: number;
-  badge?: 'NEW' | 'PREMIUM SELECTION' | 'SALE' | 'ESSENTIAL';
-  image: string;
-  hoverImage: string;
-  gallery: string[];
-  colors: ProductColor[];
-  sizes: string[];
-  fit: string;
-  composition: string;
+  quote: string; // 'For the soft heart moments.'
   description: string;
-  editorialNote?: string;
-  isNew?: boolean;
-  isSale?: boolean;
-  isBestseller?: boolean;
+  whatsInside: string[];
+  whyYoullLoveIt: string[];
+  howToUse: string;
+  ingredients: string;
   rating: number;
   reviewCount: number;
-  sku: string;
+  isNew?: boolean;
+  isBestseller?: boolean;
+  iconSymbol: IconSymbol;
+  modelImage: string; // high-end beauty portrait with natural glowing skin & product
+  productImage: string; // collectible round compact box shot
+  openBalmImage: string; // opened compact showing buttery balm
+  lipMacroImage: string; // extreme close up hydrated glossy lips
+  lifestyleImage: string; // palm of hand or editorial tabletop
 }
 
 export interface CartItem {
   id: string;
   product: Product;
-  selectedSize: string;
-  selectedColor: string;
   quantity: number;
+  giftBox?: boolean;
 }
 
-export interface EditorialCategory {
-  id: string;
-  name: string;
-  label: string;
-  tagline: string;
-  image: string;
-  hrefCategory: MainCategory;
-}
-
-export type ActivePage = 
-  | 'home' 
-  | 'shop' 
-  | 'women' 
-  | 'men' 
-  | 'kids' 
-  | 'new-arrivals'
-  | 'denim'
-  | 'sale'
-  | 'wishlist'
-  | 'about';
+export type ActivePage = 'home' | '12-moods' | 'shop' | 'about' | 'wishlist';
 
 export interface FilterState {
-  category: MainCategory;
-  subCategory: string;
-  sort: 'recommended' | 'newest' | 'price-asc' | 'price-desc';
+  category: MoodCategory;
+  sort: 'recommended' | 'price-asc' | 'price-desc' | 'rating';
   searchQuery: string;
-  selectedSize?: string;
-  selectedColor?: string;
 }

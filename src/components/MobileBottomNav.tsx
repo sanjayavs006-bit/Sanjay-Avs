@@ -1,95 +1,86 @@
 import React from 'react';
 import { Home, Search, Heart, User, ShoppingBag } from 'lucide-react';
-import { ActivePage, MainCategory } from '../types';
 
 interface MobileBottomNavProps {
-  activePage: ActivePage;
-  onNavigate: (page: ActivePage, category?: MainCategory) => void;
-  onOpenSearch: () => void;
-  onOpenCart: () => void;
-  onOpenWishlist: () => void;
-  onOpenAccount: () => void;
   cartCount: number;
   wishlistCount: number;
+  onHomeClick: () => void;
+  onSearchClick: () => void;
+  onWishlistClick: () => void;
+  onAccountClick: () => void;
+  onCartClick: () => void;
 }
 
 export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
-  activePage,
-  onNavigate,
-  onOpenSearch,
-  onOpenCart,
-  onOpenWishlist,
-  onOpenAccount,
   cartCount,
   wishlistCount,
+  onHomeClick,
+  onSearchClick,
+  onWishlistClick,
+  onAccountClick,
+  onCartClick,
 }) => {
   return (
-    <div className="md:hidden fixed bottom-5 left-1/2 -translate-x-1/2 z-40 w-[92%] max-w-sm pointer-events-auto">
-      {/* Floating rounded black navigation pill inspired by modern luxury & fast-fashion shopping apps */}
-      <nav
-        aria-label="Mobile Navigation"
-        className="w-full bg-[#000000]/95 backdrop-blur-md text-white rounded-full px-4 py-2.5 shadow-2xl border border-white/15 flex items-center justify-between"
-      >
+    <div className="fixed bottom-4 inset-x-0 z-40 flex justify-center px-4 md:hidden pointer-events-none select-none">
+      <nav className="pointer-events-auto bg-[#7B2638] text-[#FFF8F2] rounded-full px-5 py-3 shadow-2xl border border-white/20 flex items-center gap-6 sm:gap-8 backdrop-blur-md">
         {/* Home */}
         <button
-          onClick={() => onNavigate('home', 'ALL')}
-          className={`flex flex-col items-center justify-center p-2 rounded-full transition-colors cursor-pointer ${
-            activePage === 'home' ? 'text-white' : 'text-[#8E8E93] hover:text-white'
-          }`}
-          aria-label="Home"
+          onClick={onHomeClick}
+          className="flex flex-col items-center gap-0.5 hover:opacity-80 transition-opacity cursor-pointer"
+          aria-label="Go home"
         >
-          <Home className="w-5 h-5 stroke-[1.5]" />
-          <span className="text-[9px] font-bold tracking-wider uppercase mt-0.5">Home</span>
+          <Home className="w-4 h-4 stroke-[2]" />
+          <span className="text-[9px] font-bold uppercase tracking-wider">HOME</span>
         </button>
 
         {/* Search */}
         <button
-          onClick={onOpenSearch}
-          className="flex flex-col items-center justify-center p-2 rounded-full text-[#8E8E93] hover:text-white transition-colors cursor-pointer"
+          onClick={onSearchClick}
+          className="flex flex-col items-center gap-0.5 hover:opacity-80 transition-opacity cursor-pointer"
           aria-label="Search"
         >
-          <Search className="w-5 h-5 stroke-[1.5]" />
-          <span className="text-[9px] font-bold tracking-wider uppercase mt-0.5">Search</span>
+          <Search className="w-4 h-4 stroke-[2]" />
+          <span className="text-[9px] font-bold uppercase tracking-wider">SEARCH</span>
         </button>
 
         {/* Wishlist */}
         <button
-          onClick={onOpenWishlist}
-          className="relative flex flex-col items-center justify-center p-2 rounded-full text-[#8E8E93] hover:text-white transition-colors cursor-pointer"
+          onClick={onWishlistClick}
+          className="relative flex flex-col items-center gap-0.5 hover:opacity-80 transition-opacity cursor-pointer"
           aria-label="Wishlist"
         >
-          <Heart className="w-5 h-5 stroke-[1.5]" />
+          <Heart className={`w-4 h-4 stroke-[2] ${wishlistCount > 0 ? 'fill-white' : ''}`} />
+          <span className="text-[9px] font-bold uppercase tracking-wider">WISHLIST</span>
           {wishlistCount > 0 && (
-            <span className="absolute top-1 right-2 min-w-[15px] h-[15px] rounded-full bg-[#E30613] text-white text-[9px] font-bold flex items-center justify-center px-0.5">
+            <span className="absolute -top-1.5 -right-2 bg-white text-[#7B2638] text-[9px] font-mono font-black w-4 h-4 rounded-full flex items-center justify-center">
               {wishlistCount}
             </span>
           )}
-          <span className="text-[9px] font-bold tracking-wider uppercase mt-0.5">Saved</span>
         </button>
 
         {/* Account */}
         <button
-          onClick={onOpenAccount}
-          className="flex flex-col items-center justify-center p-2 rounded-full text-[#8E8E93] hover:text-white transition-colors cursor-pointer"
+          onClick={onAccountClick}
+          className="flex flex-col items-center gap-0.5 hover:opacity-80 transition-opacity cursor-pointer"
           aria-label="Account"
         >
-          <User className="w-5 h-5 stroke-[1.5]" />
-          <span className="text-[9px] font-bold tracking-wider uppercase mt-0.5">Profile</span>
+          <User className="w-4 h-4 stroke-[2]" />
+          <span className="text-[9px] font-bold uppercase tracking-wider">ACCOUNT</span>
         </button>
 
-        {/* Shopping Bag */}
+        {/* Bag */}
         <button
-          onClick={onOpenCart}
-          className="relative flex flex-col items-center justify-center p-2 rounded-full text-[#8E8E93] hover:text-white transition-colors cursor-pointer"
-          aria-label="Bag"
+          onClick={onCartClick}
+          className="relative flex flex-col items-center gap-0.5 hover:opacity-80 transition-opacity cursor-pointer"
+          aria-label="Shopping bag"
         >
-          <ShoppingBag className="w-5 h-5 stroke-[1.5]" />
+          <ShoppingBag className="w-4 h-4 stroke-[2]" />
+          <span className="text-[9px] font-bold uppercase tracking-wider">BAG</span>
           {cartCount > 0 && (
-            <span className="absolute top-1 right-2 min-w-[15px] h-[15px] rounded-full bg-[#E30613] text-white text-[9px] font-bold flex items-center justify-center px-0.5">
+            <span className="absolute -top-1.5 -right-2 bg-white text-[#7B2638] text-[9px] font-mono font-black w-4 h-4 rounded-full flex items-center justify-center">
               {cartCount}
             </span>
           )}
-          <span className="text-[9px] font-bold tracking-wider uppercase mt-0.5">Bag</span>
         </button>
       </nav>
     </div>

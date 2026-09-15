@@ -1,231 +1,387 @@
 import React, { useState } from 'react';
-import { X, Heart, ShoppingBag, Check, Shield, Truck, RefreshCw, Star } from 'lucide-react';
 import { Product } from '../types';
+import { BalmCompactVisual } from './BalmCompactVisual';
+import {
+  X,
+  Heart,
+  Star,
+  Plus,
+  Minus,
+  Check,
+  ChevronDown,
+  Sparkles,
+  ShieldCheck,
+  Truck,
+  Leaf,
+} from 'lucide-react';
 
 interface ProductDetailModalProps {
   product: Product | null;
-  isOpen: boolean;
   onClose: () => void;
-  isWishlisted: boolean;
+  onAddToCart: (product: Product, quantity: number) => void;
   onToggleWishlist: (product: Product) => void;
-  onAddToCart: (product: Product, size: string, color: string) => void;
+  isWishlisted: boolean;
 }
 
 export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
   product,
-  isOpen,
   onClose,
-  isWishlisted,
-  onToggleWishlist,
   onAddToCart,
+  onToggleWishlist,
+  isWishlisted,
 }) => {
-  if (!isOpen || !product) return null;
+  const [activeMediaTab, setActiveMediaTab] = useState<'top' | 'open' | 'side' | 'model' | 'lip'>('top');
+  const [quantity, setQuantity] = useState(1);
+  const [justAdded, setJustAdded] = useState(false);
+  const [openAccordion, setOpenAccordion] = useState<string>('inside');
 
-  const [selectedImage, setSelectedImage] = useState(product.image);
-  const [selectedSize, setSelectedSize] = useState(product.sizes[0] || 'M');
-  const [selectedColor, setSelectedColor] = useState(product.colors[0]?.name || 'Standard');
-  const [addedSuccess, setAddedSuccess] = useState(false);
+  if (!product) return null;
 
   const handleAdd = () => {
-    onAddToCart(product, selectedSize, selectedColor);
-    setAddedSuccess(true);
-    setTimeout(() => setAddedSuccess(false), 2000);
+    onAddToCart(product, quantity);
+    setJustAdded(true);
+    setTimeout(() => setJustAdded(false), 2000);
   };
 
-  const allImages = [product.image, ...(product.hoverImage ? [product.hoverImage] : []), ...product.gallery];
-  const uniqueImages = Array.from(new Set(allImages));
+  const toggleAccordion = (section: string) => {
+    setOpenAccordion((prev) => (prev === section ? '' : section));
+  };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/70 backdrop-blur-xs flex items-center justify-center p-0 sm:p-4 select-none">
-      <div className="relative bg-[#FFFFFF] text-[#000000] w-full max-w-4xl min-h-screen sm:min-h-0 sm:max-h-[92vh] sm:rounded-none overflow-hidden flex flex-col sm:flex-row shadow-2xl">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 md:p-6 bg-black/60 backdrop-blur-xs select-none overflow-y-auto">
+      <div className="relative w-full max-w-4xl bg-[#FFF8F2] rounded-3xl border border-[#E8D3C2] shadow-2xl overflow-hidden my-auto max-h-[92vh] flex flex-col">
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 z-30 w-10 h-10 bg-white/90 backdrop-blur-xs rounded-full flex items-center justify-center text-[#000000] hover:bg-black hover:text-white transition-colors cursor-pointer shadow-md"
-          aria-label="Close dialog"
+          className="absolute top-4 right-4 z-20 p-2.5 rounded-full bg-white/90 hover:bg-[#F8DDE0] text-[#111111] transition-colors cursor-pointer border border-[#E8D3C2] shadow-xs"
+          aria-label="Close modal"
         >
-          <X className="w-5 h-5 stroke-[1.5]" />
+          <X className="w-4 h-4" />
         </button>
 
-        {/* 1. Left: Editorial Gallery (Scrollable on Desktop) */}
-        <div className="w-full sm:w-1/2 bg-[#F7F7F5] flex flex-col justify-between overflow-y-auto max-h-[50vh] sm:max-h-[92vh]">
-          {/* Main Selected Image */}
-          <div className="relative aspect-[3/4] w-full bg-[#E5E5E5] overflow-hidden">
-            <img
-              src={selectedImage}
-              alt={product.name}
-              className="w-full h-full object-cover object-top"
-            />
-            {product.badge && (
-              <span className="absolute top-4 left-4 z-10 bg-[#000000] text-white text-[10px] font-bold uppercase tracking-[0.2em] px-3 py-1">
-                {product.badge}
-              </span>
-            )}
-          </div>
+        {/* Modal Body: Two Column Responsive Layout */}
+        <div className="grid grid-cols-1 md:grid-cols-12 overflow-y-auto">
+          {/* Left Column: Media Stage & Angle Switcher (6 cols) */}
+          <div className="md:col-span-6 p-6 sm:p-8 bg-white border-b md:border-b-0 md:border-r border-[#E8D3C2] flex flex-col justify-between">
+            {/* Media Display Window */}
+            <div className="relative aspect-square w-full rounded-2xl bg-[#FFF8F2] border border-[#E8D3C2]/80 flex items-center justify-center overflow-hidden">
+              {/* Top Lid View */}
+              {activeMediaTab === 'top' && (
+                <BalmCompactVisual product={product} view="top" size="xl" />
+              )}
 
-          {/* Thumbnail Bar */}
-          {uniqueImages.length > 1 && (
-            <div className="p-3 flex items-center gap-2 overflow-x-auto border-t border-[#E5E5E5] bg-white">
-              {uniqueImages.map((img, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => setSelectedImage(img)}
-                  className={`w-14 aspect-[3/4] overflow-hidden border transition-all cursor-pointer ${
-                    selectedImage === img ? 'border-[#000000] ring-1 ring-black' : 'border-[#E5E5E5] opacity-70 hover:opacity-100'
-                  }`}
-                >
-                  <img src={img} alt="Thumbnail" className="w-full h-full object-cover" />
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
+              {/* Open Balm Core View */}
+              {activeMediaTab === 'open' && (
+                <BalmCompactVisual product={product} view="open" size="xl" />
+              )}
 
-        {/* 2. Right: Product Details & Controls */}
-        <div className="w-full sm:w-1/2 p-6 sm:p-8 overflow-y-auto flex flex-col justify-between space-y-6">
-          <div className="space-y-4">
-            {/* Header info */}
-            <div>
-              <div className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#666666]">
-                {product.category} • {product.subCategory}
-              </div>
-              <h2 className="text-xl sm:text-2xl font-black uppercase tracking-tight text-[#000000] mt-1">
-                {product.name}
-              </h2>
-              <div className="flex items-center gap-3 pt-2">
-                <span className="text-lg font-black text-[#000000]">
-                  ₹{product.price.toLocaleString('en-IN')}
-                </span>
-                {product.originalPrice && (
-                  <span className="text-sm text-[#8E8E93] line-through">
-                    ₹{product.originalPrice.toLocaleString('en-IN')}
-                  </span>
-                )}
-                <span className="text-[11px] text-[#666666] tracking-wide">
-                  (INCL. ALL TAXES)
-                </span>
-              </div>
-            </div>
+              {/* Side Profile View */}
+              {activeMediaTab === 'side' && (
+                <BalmCompactVisual product={product} view="side" size="xl" />
+              )}
 
-            {/* Color Swatches */}
-            {product.colors && product.colors.length > 0 && (
-              <div className="space-y-2 pt-2">
-                <div className="flex items-center justify-between text-xs tracking-wider">
-                  <span className="font-bold uppercase text-[#000000]">COLOR: {selectedColor}</span>
+              {/* Campaign Beauty Model Portrait */}
+              {activeMediaTab === 'model' && (
+                <div className="w-full h-full relative">
+                  <img
+                    src={product.modelImage}
+                    alt={`${product.name} Campaign Model`}
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-3 text-white">
+                    <span className="text-[10px] font-mono tracking-widest uppercase block">
+                      EDITORIAL CAMPAIGN
+                    </span>
+                    <span className="text-xs font-bold">{product.finish}</span>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  {product.colors.map((c) => (
-                    <button
-                      key={c.name}
-                      onClick={() => setSelectedColor(c.name)}
-                      className={`p-1 rounded-full border transition-all cursor-pointer ${
-                        selectedColor === c.name ? 'border-[#000000] scale-110' : 'border-transparent hover:scale-105'
-                      }`}
-                      title={c.name}
-                    >
-                      <span
-                        className="block w-5 h-5 rounded-full border border-black/20"
-                        style={{ backgroundColor: c.hex }}
-                      />
-                    </button>
-                  ))}
+              )}
+
+              {/* Lip Macro Hydrated Glaze */}
+              {activeMediaTab === 'lip' && (
+                <div className="w-full h-full relative">
+                  <img
+                    src={product.lipMacroImage}
+                    alt={`${product.name} Macro Lip`}
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-3 text-white">
+                    <span className="text-[10px] font-mono tracking-widest uppercase block">
+                      MACRO LIP FINISH
+                    </span>
+                    <span className="text-xs font-bold">{product.flavor}</span>
+                  </div>
                 </div>
-              </div>
-            )}
-
-            {/* Size Selector */}
-            <div className="space-y-2 pt-2">
-              <div className="flex items-center justify-between text-xs tracking-wider">
-                <span className="font-bold uppercase text-[#000000]">SELECT SIZE</span>
-                <span className="text-[11px] text-[#666666] underline cursor-pointer">
-                  FIT GUIDE
-                </span>
-              </div>
-              <div className="grid grid-cols-5 gap-2">
-                {product.sizes.map((size) => (
-                  <button
-                    key={size}
-                    onClick={() => setSelectedSize(size)}
-                    className={`py-2.5 text-xs font-bold uppercase tracking-wider border transition-all cursor-pointer ${
-                      selectedSize === size
-                        ? 'bg-[#000000] text-white border-[#000000]'
-                        : 'bg-white text-[#000000] border-[#E5E5E5] hover:border-[#000000]'
-                    }`}
-                  >
-                    {size}
-                  </button>
-                ))}
-              </div>
-              <p className="text-[11px] text-[#666666] italic pt-1">
-                Fit: {product.fit}
-              </p>
-            </div>
-
-            {/* Editorial Note & Description */}
-            <div className="pt-2 border-t border-[#E5E5E5] space-y-2">
-              <p className="text-xs text-[#333333] leading-relaxed">
-                {product.description}
-              </p>
-              {product.editorialNote && (
-                <p className="text-[11px] font-semibold text-[#000000] tracking-wide bg-[#F7F7F5] p-2.5">
-                  EDITORIAL NOTE: {product.editorialNote}
-                </p>
               )}
             </div>
 
-            {/* Material & Composition */}
-            <div className="text-[11px] text-[#666666] space-y-1">
-              <div><span className="font-bold text-[#000000]">COMPOSITION:</span> {product.composition}</div>
-              <div><span className="font-bold text-[#000000]">ITEM CODE:</span> {product.sku}</div>
+            {/* Thumbnail Navigation */}
+            <div className="flex items-center gap-2 pt-4 overflow-x-auto no-scrollbar">
+              <button
+                onClick={() => setActiveMediaTab('top')}
+                className={`px-3 py-2 rounded-xl text-[10px] font-bold uppercase tracking-wider border cursor-pointer whitespace-nowrap ${
+                  activeMediaTab === 'top'
+                    ? 'bg-[#7B2638] text-white border-[#7B2638]'
+                    : 'bg-[#FFF8F2] border-[#E8D3C2] text-[#111111]'
+                }`}
+              >
+                LID ARTWORK
+              </button>
+              <button
+                onClick={() => setActiveMediaTab('open')}
+                className={`px-3 py-2 rounded-xl text-[10px] font-bold uppercase tracking-wider border cursor-pointer whitespace-nowrap ${
+                  activeMediaTab === 'open'
+                    ? 'bg-[#7B2638] text-white border-[#7B2638]'
+                    : 'bg-[#FFF8F2] border-[#E8D3C2] text-[#111111]'
+                }`}
+              >
+                OPEN BALM
+              </button>
+              <button
+                onClick={() => setActiveMediaTab('side')}
+                className={`px-3 py-2 rounded-xl text-[10px] font-bold uppercase tracking-wider border cursor-pointer whitespace-nowrap ${
+                  activeMediaTab === 'side'
+                    ? 'bg-[#7B2638] text-white border-[#7B2638]'
+                    : 'bg-[#FFF8F2] border-[#E8D3C2] text-[#111111]'
+                }`}
+              >
+                SIDE PROFILE
+              </button>
+              <button
+                onClick={() => setActiveMediaTab('model')}
+                className={`px-3 py-2 rounded-xl text-[10px] font-bold uppercase tracking-wider border cursor-pointer whitespace-nowrap ${
+                  activeMediaTab === 'model'
+                    ? 'bg-[#7B2638] text-white border-[#7B2638]'
+                    : 'bg-[#FFF8F2] border-[#E8D3C2] text-[#111111]'
+                }`}
+              >
+                MODEL
+              </button>
+              <button
+                onClick={() => setActiveMediaTab('lip')}
+                className={`px-3 py-2 rounded-xl text-[10px] font-bold uppercase tracking-wider border cursor-pointer whitespace-nowrap ${
+                  activeMediaTab === 'lip'
+                    ? 'bg-[#7B2638] text-white border-[#7B2638]'
+                    : 'bg-[#FFF8F2] border-[#E8D3C2] text-[#111111]'
+                }`}
+              >
+                LIP GLOSS
+              </button>
             </div>
           </div>
 
-          {/* Action Buttons */}
-          <div className="pt-4 border-t border-[#E5E5E5] space-y-3">
-            <div className="flex gap-3">
-              <button
-                onClick={handleAdd}
-                className={`flex-1 py-4 text-xs font-black uppercase tracking-[0.24em] transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-98 ${
-                  addedSuccess
-                    ? 'bg-[#2B6336] text-white'
-                    : 'bg-[#000000] hover:bg-[#E30613] text-white'
-                }`}
-              >
-                {addedSuccess ? (
-                  <>
-                    <Check className="w-4 h-4" />
-                    <span>ADDED TO BAG</span>
-                  </>
-                ) : (
-                  <>
-                    <ShoppingBag className="w-4 h-4" />
-                    <span>ADD TO BAG</span>
-                  </>
-                )}
-              </button>
+          {/* Right Column: Product Narrative, Price & Accordions (6 cols) */}
+          <div className="md:col-span-6 p-6 sm:p-8 space-y-6">
+            {/* Header Identity */}
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-mono font-bold text-[#7B2638] bg-[#F8DDE0] px-2 py-0.5 rounded-full uppercase">
+                  {product.number} OF 12 MOODS
+                </span>
+                <div className="flex items-center text-[#7B2638] text-xs">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} className="w-3 h-3 fill-[#7B2638]" />
+                  ))}
+                  <span className="ml-1 text-[11px] font-bold text-[#111111]">
+                    {product.rating} ({product.reviewCount})
+                  </span>
+                </div>
+              </div>
 
-              <button
-                onClick={() => onToggleWishlist(product)}
-                className={`w-14 border flex items-center justify-center transition-colors cursor-pointer ${
-                  isWishlisted
-                    ? 'border-[#E30613] text-[#E30613] bg-[#FFF5F6]'
-                    : 'border-[#E5E5E5] text-[#000000] hover:border-[#000000]'
-                }`}
-                aria-label="Toggle Wishlist"
-              >
-                <Heart className={`w-5 h-5 ${isWishlisted ? 'fill-[#E30613]' : ''}`} />
-              </button>
+              <h2 className="text-2xl sm:text-3xl font-black uppercase tracking-tight text-[#111111]">
+                {product.title}
+              </h2>
+              <p className="text-xs sm:text-sm font-serif italic text-[#7B2638]">
+                "{product.quote}"
+              </p>
             </div>
 
-            {/* Shipping & Guarantee */}
-            <div className="grid grid-cols-2 gap-2 text-[10px] text-[#666666] pt-1">
-              <div className="flex items-center gap-1.5">
-                <Truck className="w-3.5 h-3.5 text-[#000000]" />
-                <span>Standard Delivery 2–4 days</span>
+            {/* Price & Flavor Summary */}
+            <div className="p-4 rounded-2xl bg-white border border-[#E8D3C2] space-y-2">
+              <div className="flex items-baseline justify-between">
+                <div className="flex items-baseline gap-2">
+                  <span className="text-2xl font-black text-[#111111]">₹{product.price}</span>
+                  {product.originalPrice && (
+                    <span className="text-sm line-through text-[#111111]/40">
+                      ₹{product.originalPrice}
+                    </span>
+                  )}
+                </div>
+                <span className="text-[10px] font-mono text-[#7B2638] font-bold uppercase tracking-wider">
+                  FREE SHIP OVER ₹999
+                </span>
               </div>
-              <div className="flex items-center gap-1.5">
-                <RefreshCw className="w-3.5 h-3.5 text-[#000000]" />
-                <span>15 Days Free Return</span>
+              <p className="text-xs text-[#111111]/80">
+                <strong className="text-[#7B2638] font-semibold">Flavor Notes:</strong>{' '}
+                {product.flavor}
+              </p>
+              <p className="text-xs text-[#111111]/80">
+                <strong className="text-[#7B2638] font-semibold">Finish:</strong> {product.finish}
+              </p>
+            </div>
+
+            {/* Quantity and Primary CTAs */}
+            <div className="space-y-3">
+              <div className="flex items-center gap-3">
+                {/* Quantity Stepper */}
+                <div className="flex items-center bg-white border border-[#E8D3C2] rounded-full px-3 py-1.5 shadow-xs">
+                  <button
+                    onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                    className="p-1 hover:text-[#7B2638] cursor-pointer"
+                    aria-label="Decrease quantity"
+                  >
+                    <Minus className="w-3.5 h-3.5" />
+                  </button>
+                  <span className="w-8 text-center text-xs font-bold">{quantity}</span>
+                  <button
+                    onClick={() => setQuantity((q) => q + 1)}
+                    className="p-1 hover:text-[#7B2638] cursor-pointer"
+                    aria-label="Increase quantity"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+
+                {/* Add to Bag Button */}
+                <button
+                  onClick={handleAdd}
+                  className={`flex-1 py-3.5 px-6 rounded-full text-xs font-bold uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs ${
+                    justAdded
+                      ? 'bg-[#10B981] text-white'
+                      : 'bg-[#7B2638] hover:bg-[#111111] text-[#FFF8F2]'
+                  }`}
+                >
+                  {justAdded ? (
+                    <>
+                      <Check className="w-4 h-4" />
+                      <span>ADDED TO BAG</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>ADD TO BAG — ₹{product.price * quantity}</span>
+                    </>
+                  )}
+                </button>
+
+                {/* Wishlist Button */}
+                <button
+                  onClick={() => onToggleWishlist(product)}
+                  className={`p-3.5 rounded-full border transition-colors cursor-pointer ${
+                    isWishlisted
+                      ? 'bg-[#F8DDE0] border-[#7B2638] text-[#7B2638]'
+                      : 'bg-white border-[#E8D3C2] text-[#111111] hover:border-[#7B2638]'
+                  }`}
+                  aria-label="Save to wishlist"
+                >
+                  <Heart className={`w-4 h-4 ${isWishlisted ? 'fill-[#7B2638]' : ''}`} />
+                </button>
+              </div>
+            </div>
+
+            {/* Luxury Accordions */}
+            <div className="space-y-2 pt-2 border-t border-[#E8D3C2]/80">
+              {/* Accordion 1: WHAT'S INSIDE */}
+              <div className="border border-[#E8D3C2] rounded-xl overflow-hidden bg-white">
+                <button
+                  onClick={() => toggleAccordion('inside')}
+                  className="w-full px-4 py-3 text-left text-xs font-bold uppercase tracking-wider flex items-center justify-between cursor-pointer"
+                >
+                  <span>WHAT'S INSIDE</span>
+                  <ChevronDown
+                    className={`w-3.5 h-3.5 transition-transform ${
+                      openAccordion === 'inside' ? 'rotate-180 text-[#7B2638]' : ''
+                    }`}
+                  />
+                </button>
+                {openAccordion === 'inside' && (
+                  <div className="px-4 pb-4 pt-1 text-xs text-[#111111]/80 space-y-2 border-t border-[#FFF8F2]">
+                    <ul className="space-y-1.5 list-disc list-inside">
+                      {product.whatsInside.map((item, i) => (
+                        <li key={i}>{item}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+
+              {/* Accordion 2: WHY YOU'LL LOVE IT */}
+              <div className="border border-[#E8D3C2] rounded-xl overflow-hidden bg-white">
+                <button
+                  onClick={() => toggleAccordion('love')}
+                  className="w-full px-4 py-3 text-left text-xs font-bold uppercase tracking-wider flex items-center justify-between cursor-pointer"
+                >
+                  <span>WHY YOU'LL LOVE IT</span>
+                  <ChevronDown
+                    className={`w-3.5 h-3.5 transition-transform ${
+                      openAccordion === 'love' ? 'rotate-180 text-[#7B2638]' : ''
+                    }`}
+                  />
+                </button>
+                {openAccordion === 'love' && (
+                  <div className="px-4 pb-4 pt-1 text-xs text-[#111111]/80 space-y-2 border-t border-[#FFF8F2]">
+                    <ul className="space-y-1.5 list-disc list-inside">
+                      {product.whyYoullLoveIt.map((item, i) => (
+                        <li key={i}>{item}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+
+              {/* Accordion 3: HOW TO USE */}
+              <div className="border border-[#E8D3C2] rounded-xl overflow-hidden bg-white">
+                <button
+                  onClick={() => toggleAccordion('how')}
+                  className="w-full px-4 py-3 text-left text-xs font-bold uppercase tracking-wider flex items-center justify-between cursor-pointer"
+                >
+                  <span>HOW TO USE</span>
+                  <ChevronDown
+                    className={`w-3.5 h-3.5 transition-transform ${
+                      openAccordion === 'how' ? 'rotate-180 text-[#7B2638]' : ''
+                    }`}
+                  />
+                </button>
+                {openAccordion === 'how' && (
+                  <div className="px-4 pb-4 pt-1 text-xs text-[#111111]/80 leading-relaxed border-t border-[#FFF8F2]">
+                    {product.howToUse}
+                  </div>
+                )}
+              </div>
+
+              {/* Accordion 4: INGREDIENTS */}
+              <div className="border border-[#E8D3C2] rounded-xl overflow-hidden bg-white">
+                <button
+                  onClick={() => toggleAccordion('ingredients')}
+                  className="w-full px-4 py-3 text-left text-xs font-bold uppercase tracking-wider flex items-center justify-between cursor-pointer"
+                >
+                  <span>FULL INGREDIENTS LIST</span>
+                  <ChevronDown
+                    className={`w-3.5 h-3.5 transition-transform ${
+                      openAccordion === 'ingredients' ? 'rotate-180 text-[#7B2638]' : ''
+                    }`}
+                  />
+                </button>
+                {openAccordion === 'ingredients' && (
+                  <div className="px-4 pb-4 pt-1 text-[11px] text-[#111111]/70 leading-relaxed font-mono border-t border-[#FFF8F2]">
+                    {product.ingredients}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Clean Beauty Badges */}
+            <div className="grid grid-cols-3 gap-2 pt-2 text-center text-[10px] font-bold uppercase tracking-wider text-[#7B2638]">
+              <div className="p-2 rounded-xl bg-white border border-[#E8D3C2] flex flex-col items-center gap-1">
+                <Leaf className="w-3.5 h-3.5" />
+                <span>100% VEGAN</span>
+              </div>
+              <div className="p-2 rounded-xl bg-white border border-[#E8D3C2] flex flex-col items-center gap-1">
+                <ShieldCheck className="w-3.5 h-3.5" />
+                <span>CLEAN FORMULA</span>
+              </div>
+              <div className="p-2 rounded-xl bg-white border border-[#E8D3C2] flex flex-col items-center gap-1">
+                <Truck className="w-3.5 h-3.5" />
+                <span>FAST SHIPPING</span>
               </div>
             </div>
           </div>

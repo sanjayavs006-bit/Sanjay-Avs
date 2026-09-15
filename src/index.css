@@ -3,20 +3,25 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --color-fashion-red: #E30613;
-  --color-fashion-black: #000000;
-  --color-fashion-charcoal: #171717;
-  --color-fashion-offwhite: #F7F7F5;
-  --color-fashion-grey: #E5E5E5;
+  --font-sans: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-serif: "Playfair Display", Georgia, serif;
+  
+  --color-moody-cream: #FFF8F2;
+  --color-moody-blush: #F8DDE0;
+  --color-moody-babypink: #F4C7CE;
+  --color-moody-burgundy: #7B2638;
+  --color-moody-rose: #C96B7B;
+  --color-moody-beige: #E8D3C2;
+  --color-moody-white: #FFFFFF;
+  --color-moody-black: #111111;
 }
 
 @layer base {
   html {
     scroll-behavior: smooth;
-    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    color: #000000;
-    background-color: #FFFFFF;
+    font-family: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    color: #111111;
+    background-color: #FFF8F2;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
@@ -28,16 +33,20 @@
   height: 5px;
 }
 ::-webkit-scrollbar-track {
-  background: #F7F7F5;
+  background: #FFF8F2;
 }
 ::-webkit-scrollbar-thumb {
-  background: #C4C4C4;
+  background: #E8D3C2;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #000000;
+  background: #7B2638;
 }
 
-/* Image aspect ratios */
-.aspect-fashion {
-  aspect-ratio: 3 / 4;
+/* Luxury Compact Soft Shadows */
+.shadow-compact {
+  box-shadow: 0 12px 28px -6px rgba(123, 38, 56, 0.08), 0 4px 12px -2px rgba(17, 17, 17, 0.04);
+}
+
+.shadow-compact-hover {
+  box-shadow: 0 20px 36px -8px rgba(123, 38, 56, 0.16), 0 8px 16px -4px rgba(17, 17, 17, 0.06);
 }

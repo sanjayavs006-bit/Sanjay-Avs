@@ -4,14 +4,13 @@
  */
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { MainCategory, ActivePage, Product, CartItem } from './types';
-import { FASHION_PRODUCTS } from './data/fashionProducts';
+import { MoodCategory, Product, CartItem } from './types';
+import { MOODY_PRODUCTS } from './data/moodyProducts';
 import { Header } from './components/Header';
 import { Hero } from './components/Hero';
-import { CategoryTiles } from './components/CategoryTiles';
-import { ProductGrid } from './components/ProductGrid';
-import { EditorialBanner } from './components/EditorialBanner';
-import { EditorialStatement } from './components/EditorialStatement';
+import { MoodGrid } from './components/MoodGrid';
+import { PackagingStory } from './components/PackagingStory';
+import { ModelCampaignSection } from './components/ModelCampaignSection';
 import { Footer } from './components/Footer';
 import { CartDrawer } from './components/CartDrawer';
 import { ProductDetailModal } from './components/ProductDetailModal';
@@ -19,14 +18,14 @@ import { WishlistDrawer } from './components/WishlistDrawer';
 import { SearchModal } from './components/SearchModal';
 import { AccountModal } from './components/AccountModal';
 import { CheckoutModal } from './components/CheckoutModal';
+import { MoodQuizModal } from './components/MoodQuizModal';
 import { MobileBottomNav } from './components/MobileBottomNav';
 import { ToastContainer, ToastMessage } from './components/Toast';
+import { ErrorBoundary } from './components/ErrorBoundary';
 
 export default function App() {
-  // Navigation & Category Filtering State
-  const [activeCategory, setActiveCategory] = useState<MainCategory>('ALL');
-  const [activePage, setActivePage] = useState<ActivePage>('home');
-  const [sortBy, setSortBy] = useState<'recommended' | 'newest' | 'price-asc' | 'price-desc'>('recommended');
+  // Category Filtering State
+  const [activeCategory, setActiveCategory] = useState<MoodCategory>('ALL');
 
   // Interactive Modals & Drawers
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -34,23 +33,22 @@ export default function App() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isAccountOpen, setIsAccountOpen] = useState(false);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
+  const [isMoodQuizOpen, setIsMoodQuizOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
-  // Cart State (stored locally with defensive try-catch)
+  // Cart State (stored locally)
   const [cartItems, setCartItems] = useState<CartItem[]>(() => {
     try {
-      const saved = localStorage.getItem('mm_fashion_cart');
+      const saved = localStorage.getItem('moody_match_cart_v2');
       if (saved) return JSON.parse(saved);
     } catch (e) {
       console.warn('Could not read cart from localStorage', e);
     }
-    // Default starter item
+    // Default initial starter item for instant joy: #01 HEART
     return [
       {
-        id: 'cart-1',
-        product: FASHION_PRODUCTS[0],
-        selectedSize: 'M',
-        selectedColor: 'Pitch Black',
+        id: 'cart-init-01',
+        product: MOODY_PRODUCTS[0],
         quantity: 1,
       },
     ];
@@ -59,145 +57,78 @@ export default function App() {
   // Wishlist State
   const [wishlistIds, setWishlistIds] = useState<string[]>(() => {
     try {
-      const saved = localStorage.getItem('mm_fashion_wishlist');
+      const saved = localStorage.getItem('moody_match_wishlist_v2');
       if (saved) return JSON.parse(saved);
     } catch (e) {
       console.warn('Could not read wishlist from localStorage', e);
     }
-    return ['prod-1', 'prod-4'];
+    return ['mood-01', 'mood-02'];
   });
 
   // Order count for member tracking
-  const [orderCount, setOrderCount] = useState<number>(() => {
-    try {
-      const saved = localStorage.getItem('mm_fashion_orders');
-      return saved ? parseInt(saved, 10) : 1;
-    } catch {
-      return 1;
-    }
-  });
+  const [orderCount, setOrderCount] = useState(1);
 
   // Toasts
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
 
-  const addToast = (toast: Omit<ToastMessage, 'id'>) => {
-    const id = Math.random().toString(36).substring(2, 9);
-    setToasts((prev) => [...prev, { ...toast, id }]);
+  // Sync cart to localStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem('moody_match_cart_v2', JSON.stringify(cartItems));
+    } catch (e) {
+      console.warn('Could not save cart', e);
+    }
+  }, [cartItems]);
+
+  // Sync wishlist to localStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem('moody_match_wishlist_v2', JSON.stringify(wishlistIds));
+    } catch (e) {
+      console.warn('Could not save wishlist', e);
+    }
+  }, [wishlistIds]);
+
+  const addToast = (type: 'cart' | 'wishlist' | 'info' | 'success', title: string, subtitle?: string, product?: Product) => {
+    const id = Date.now().toString();
+    const newToast: ToastMessage = { id, type, title, subtitle, product };
+    setToasts((prev) => [...prev, newToast]);
     setTimeout(() => {
       setToasts((prev) => prev.filter((t) => t.id !== id));
-    }, 3500);
+    }, 3800);
   };
 
   const removeToast = (id: string) => {
     setToasts((prev) => prev.filter((t) => t.id !== id));
   };
 
-  // Sync Cart to localStorage
-  useEffect(() => {
-    try {
-      localStorage.setItem('mm_fashion_cart', JSON.stringify(cartItems));
-    } catch (e) {
-      console.warn('Could not save cart', e);
-    }
-  }, [cartItems]);
-
-  // Sync Wishlist to localStorage
-  useEffect(() => {
-    try {
-      localStorage.setItem('mm_fashion_wishlist', JSON.stringify(wishlistIds));
-    } catch (e) {
-      console.warn('Could not save wishlist', e);
-    }
-  }, [wishlistIds]);
-
-  // Filtered and Sorted Products
-  const filteredProducts = useMemo(() => {
-    let result = [...FASHION_PRODUCTS];
-
-    if (activeCategory === 'SALE') {
-      result = result.filter((p) => p.badge === 'SALE' || !!p.originalPrice);
-    } else if (activeCategory === 'NEW ARRIVALS') {
-      result = result.filter((p) => p.isNew || p.badge === 'NEW');
-    } else if (activeCategory === 'DENIM') {
-      result = result.filter((p) => p.category === 'DENIM' || p.subCategory.toLowerCase().includes('jean'));
-    } else if (activeCategory !== 'ALL') {
-      result = result.filter((p) => p.category === activeCategory);
-    }
-
-    // Sorting
-    if (sortBy === 'price-asc') {
-      result.sort((a, b) => a.price - b.price);
-    } else if (sortBy === 'price-desc') {
-      result.sort((a, b) => b.price - a.price);
-    } else if (sortBy === 'newest') {
-      result.sort((a, b) => (b.isNew ? 1 : 0) - (a.isNew ? 1 : 0));
-    }
-
-    return result;
-  }, [activeCategory, sortBy]);
-
-  // Handlers
-  const handleSelectCategory = (cat: MainCategory) => {
-    setActiveCategory(cat);
-    // Smooth scroll to product grid if clicked from other components
-    const el = document.getElementById('products-section');
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
-
-  const handleQuickAdd = (product: Product, size: string, color: string) => {
+  // Cart operations
+  const handleAddToCart = (product: Product, quantity = 1) => {
     setCartItems((prev) => {
-      const existing = prev.find(
-        (item) =>
-          item.product.id === product.id &&
-          item.selectedSize === size &&
-          item.selectedColor === color
-      );
+      const existing = prev.find((item) => item.product.id === product.id);
       if (existing) {
         return prev.map((item) =>
-          item === existing ? { ...item, quantity: item.quantity + 1 } : item
+          item.product.id === product.id
+            ? { ...item, quantity: item.quantity + quantity }
+            : item
         );
       }
       return [
         ...prev,
         {
-          id: `${product.id}-${size}-${color}-${Date.now()}`,
+          id: `cart-${Date.now()}-${product.id}`,
           product,
-          selectedSize: size,
-          selectedColor: color,
-          quantity: 1,
+          quantity,
         },
       ];
     });
 
-    addToast({
-      type: 'cart',
-      title: 'ADDED TO BAG',
-      subtitle: `${product.name} (SIZE: ${size})`,
-      product,
-    });
-  };
-
-  const handleToggleWishlist = (product: Product) => {
-    setWishlistIds((prev) => {
-      const exists = prev.includes(product.id);
-      if (exists) {
-        addToast({
-          type: 'wishlist',
-          title: 'REMOVED FROM SAVED',
-          subtitle: product.name,
-        });
-        return prev.filter((id) => id !== product.id);
-      } else {
-        addToast({
-          type: 'wishlist',
-          title: 'SAVED TO WISHLIST',
-          subtitle: product.name,
-        });
-        return [...prev, product.id];
-      }
-    });
+    addToast(
+      'cart',
+      `ADDED TO BAG`,
+      `${product.number} ${product.name} (${quantity}) ♡`,
+      product
+    );
   };
 
   const handleUpdateQuantity = (id: string, delta: number) => {
@@ -205,8 +136,8 @@ export default function App() {
       prev
         .map((item) => {
           if (item.id === id) {
-            const nextQty = item.quantity + delta;
-            return nextQty > 0 ? { ...item, quantity: nextQty } : null;
+            const newQty = item.quantity + delta;
+            return newQty > 0 ? { ...item, quantity: newQty } : null;
           }
           return item;
         })
@@ -218,149 +149,184 @@ export default function App() {
     setCartItems((prev) => prev.filter((item) => item.id !== id));
   };
 
-  const handleMoveToBagFromWishlist = (product: Product) => {
-    const defaultSize = product.sizes[0] || 'M';
-    const defaultColor = product.colors[0]?.name || 'Standard';
-    handleQuickAdd(product, defaultSize, defaultColor);
-    setWishlistIds((prev) => prev.filter((id) => id !== product.id));
+  // Wishlist operations
+  const handleToggleWishlist = (product: Product) => {
+    const exists = wishlistIds.includes(product.id);
+    if (exists) {
+      setWishlistIds((prev) => prev.filter((id) => id !== product.id));
+      addToast('info', 'REMOVED FROM SAVED', `${product.name} was removed from your wishlist.`);
+    } else {
+      setWishlistIds((prev) => [...prev, product.id]);
+      addToast('wishlist', 'SAVED TO WISHLIST ♡', `${product.number} ${product.name} — ${product.personality}`, product);
+    }
   };
 
-  const handleOrderComplete = () => {
-    const nextCount = orderCount + 1;
-    setOrderCount(nextCount);
-    try {
-      localStorage.setItem('mm_fashion_orders', nextCount.toString());
-    } catch {}
-    setCartItems([]);
-  };
-
-  // Saved Wishlist Products
   const wishlistProducts = useMemo(() => {
-    return FASHION_PRODUCTS.filter((p) => wishlistIds.includes(p.id));
+    return MOODY_PRODUCTS.filter((p) => wishlistIds.includes(p.id));
   }, [wishlistIds]);
 
   const totalCartCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
+  // Smooth scroll anchors
+  const scrollTo12Moods = () => {
+    const el = document.getElementById('the-12-moods');
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  const scrollToAbout = () => {
+    const el = document.getElementById('about-section');
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-[#FFFFFF] text-[#000000] font-sans antialiased flex flex-col selection:bg-[#E30613] selection:text-white">
-      {/* 1. Top Announcement Bar & Desktop Navigation */}
-      <Header
-        activeCategory={activeCategory}
-        onSelectCategory={handleSelectCategory}
-        cartCount={totalCartCount}
-        wishlistCount={wishlistIds.length}
-        onOpenCart={() => setIsCartOpen(true)}
-        onOpenWishlist={() => setIsWishlistOpen(true)}
-        onOpenSearch={() => setIsSearchOpen(true)}
-        onOpenAccount={() => setIsAccountOpen(true)}
-      />
+    <ErrorBoundary>
+      <div className="min-h-screen bg-[#FFF8F2] text-[#111111] flex flex-col antialiased selection:bg-[#7B2638] selection:text-white font-sans">
+        {/* Toast Notification Container */}
+        <ToastContainer
+          toasts={toasts}
+          onDismiss={removeToast}
+          onOpenCart={() => setIsCartOpen(true)}
+        />
 
-      {/* 2. Bold Red Editorial Campaign Hero Section */}
-      <Hero onShopNow={handleSelectCategory} />
+        {/* 1. Minimal Editorial Header */}
+        <Header
+          activeCategory={activeCategory}
+          onSelectCategory={(cat) => {
+            setActiveCategory(cat);
+            scrollTo12Moods();
+          }}
+          cartCount={totalCartCount}
+          wishlistCount={wishlistIds.length}
+          onOpenCart={() => setIsCartOpen(true)}
+          onOpenWishlist={() => setIsWishlistOpen(true)}
+          onOpenSearch={() => setIsSearchOpen(true)}
+          onOpenAccount={() => setIsAccountOpen(true)}
+          onOpenMoodQuiz={() => setIsMoodQuizOpen(true)}
+          onScrollTo12Moods={scrollTo12Moods}
+          onScrollToAbout={scrollToAbout}
+        />
 
-      {/* 3. Large Editorial Category Tiles (WOMEN / MEN / KIDS / NEW ARRIVALS) */}
-      <CategoryTiles onSelectCategory={handleSelectCategory} />
+        <main className="flex-1 w-full flex flex-col">
+          {/* 2. Hero Section: Editorial image-first beauty campaign */}
+          <Hero
+            onShopAll={scrollTo12Moods}
+            onOpenMoodQuiz={() => setIsMoodQuizOpen(true)}
+            onSelectProduct={(product) => setSelectedProduct(product)}
+          />
 
-      {/* 4. Product Catalog Grid (Clean 2-Col Mobile, 4-Col Desktop) */}
-      <ProductGrid
-        products={filteredProducts}
-        activeCategory={activeCategory}
-        onSelectCategory={setActiveCategory}
-        wishlistIds={wishlistIds}
-        onToggleWishlist={handleToggleWishlist}
-        onQuickAdd={handleQuickAdd}
-        onSelectProduct={setSelectedProduct}
-        sortBy={sortBy}
-        onChangeSort={setSortBy}
-      />
+          {/* 3. The 12 Moods Signature Collection */}
+          <MoodGrid
+            products={MOODY_PRODUCTS}
+            selectedCategory={activeCategory}
+            onSelectCategory={setActiveCategory}
+            onSelectProduct={(product) => setSelectedProduct(product)}
+            onAddToCart={(product) => handleAddToCart(product, 1)}
+            onToggleWishlist={handleToggleWishlist}
+            isWishlisted={(id) => wishlistIds.includes(id)}
+          />
 
-      {/* 5. Dual-Feature Editorial Campaign Banner */}
-      <EditorialBanner onSelectCategory={handleSelectCategory} />
+          {/* 4. The Packaging Story (Multi-angle architectural presentation) */}
+          <PackagingStory />
 
-      {/* 6. Newsletter / Club Statement Section */}
-      <EditorialStatement />
+          {/* 5. Model & Beauty Campaign Direction (40% Model / 40% Product / 20% Macro Lip) */}
+          <ModelCampaignSection
+            products={MOODY_PRODUCTS}
+            onSelectProduct={(product) => setSelectedProduct(product)}
+          />
+        </main>
 
-      {/* 7. Minimalist Monochrome Fashion Footer */}
-      <Footer onSelectCategory={handleSelectCategory} />
+        {/* 6. Footer */}
+        <Footer
+          onSelectCategory={(cat) => {
+            setActiveCategory(cat);
+            scrollTo12Moods();
+          }}
+          onOpenMoodQuiz={() => setIsMoodQuizOpen(true)}
+        />
 
-      {/* 8. Floating Rounded Black Mobile Navigation Bar */}
-      <MobileBottomNav
-        activePage={activePage}
-        onNavigate={(page, cat) => {
-          setActivePage(page);
-          if (cat) handleSelectCategory(cat);
-        }}
-        onOpenSearch={() => setIsSearchOpen(true)}
-        onOpenCart={() => setIsCartOpen(true)}
-        onOpenWishlist={() => setIsWishlistOpen(true)}
-        onOpenAccount={() => setIsAccountOpen(true)}
-        cartCount={totalCartCount}
-        wishlistCount={wishlistIds.length}
-      />
+        {/* 7. Floating Mobile Bottom Navigation */}
+        <MobileBottomNav
+          cartCount={totalCartCount}
+          wishlistCount={wishlistIds.length}
+          onHomeClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+          onSearchClick={() => setIsSearchOpen(true)}
+          onWishlistClick={() => setIsWishlistOpen(true)}
+          onAccountClick={() => setIsAccountOpen(true)}
+          onCartClick={() => setIsCartOpen(true)}
+        />
 
-      {/* Modals & Drawers */}
-      <CartDrawer
-        isOpen={isCartOpen}
-        onClose={() => setIsCartOpen(false)}
-        items={cartItems}
-        onUpdateQuantity={handleUpdateQuantity}
-        onRemoveItem={handleRemoveFromCart}
-        onCheckout={() => {
-          setIsCartOpen(false);
-          setIsCheckoutOpen(true);
-        }}
-      />
+        {/* Interactive Modals & Drawers */}
+        <ProductDetailModal
+          product={selectedProduct}
+          onClose={() => setSelectedProduct(null)}
+          onAddToCart={handleAddToCart}
+          onToggleWishlist={handleToggleWishlist}
+          isWishlisted={selectedProduct ? wishlistIds.includes(selectedProduct.id) : false}
+        />
 
-      <ProductDetailModal
-        product={selectedProduct}
-        isOpen={!!selectedProduct}
-        onClose={() => setSelectedProduct(null)}
-        isWishlisted={selectedProduct ? wishlistIds.includes(selectedProduct.id) : false}
-        onToggleWishlist={handleToggleWishlist}
-        onAddToCart={handleQuickAdd}
-      />
+        <CartDrawer
+          isOpen={isCartOpen}
+          onClose={() => setIsCartOpen(false)}
+          items={cartItems}
+          onUpdateQuantity={handleUpdateQuantity}
+          onRemoveItem={handleRemoveFromCart}
+          onCheckout={() => {
+            setIsCartOpen(false);
+            setIsCheckoutOpen(true);
+          }}
+        />
 
-      <WishlistDrawer
-        isOpen={isWishlistOpen}
-        onClose={() => setIsWishlistOpen(false)}
-        wishlistProducts={wishlistProducts}
-        onRemoveWishlist={handleToggleWishlist}
-        onMoveToBag={handleMoveToBagFromWishlist}
-        onSelectProduct={setSelectedProduct}
-      />
+        <WishlistDrawer
+          isOpen={isWishlistOpen}
+          onClose={() => setIsWishlistOpen(false)}
+          wishlistProducts={wishlistProducts}
+          onRemoveWishlist={handleToggleWishlist}
+          onMoveToBag={(product) => {
+            handleAddToCart(product, 1);
+            setIsCartOpen(true);
+          }}
+          onSelectProduct={(product) => setSelectedProduct(product)}
+        />
 
-      <SearchModal
-        isOpen={isSearchOpen}
-        onClose={() => setIsSearchOpen(false)}
-        products={FASHION_PRODUCTS}
-        onSelectProduct={setSelectedProduct}
-      />
+        <SearchModal
+          isOpen={isSearchOpen}
+          onClose={() => setIsSearchOpen(false)}
+          products={MOODY_PRODUCTS}
+          onSelectProduct={(product) => setSelectedProduct(product)}
+        />
 
-      <AccountModal
-        isOpen={isAccountOpen}
-        onClose={() => setIsAccountOpen(false)}
-        orderCount={orderCount}
-        wishlistCount={wishlistIds.length}
-        onViewWishlist={() => {
-          setIsAccountOpen(false);
-          setIsWishlistOpen(true);
-        }}
-      />
+        <AccountModal
+          isOpen={isAccountOpen}
+          onClose={() => setIsAccountOpen(false)}
+          orderCount={orderCount}
+          wishlistCount={wishlistIds.length}
+          onViewWishlist={() => {
+            setIsAccountOpen(false);
+            setIsWishlistOpen(true);
+          }}
+        />
 
-      <CheckoutModal
-        isOpen={isCheckoutOpen}
-        onClose={() => setIsCheckoutOpen(false)}
-        items={cartItems}
-        discountPercent={0}
-        onOrderComplete={handleOrderComplete}
-      />
+        <CheckoutModal
+          isOpen={isCheckoutOpen}
+          onClose={() => setIsCheckoutOpen(false)}
+          items={cartItems}
+          onCompleteOrder={() => {
+            setCartItems([]);
+            setOrderCount((c) => c + 1);
+          }}
+        />
 
-      {/* Floating Toasts */}
-      <ToastContainer
-        toasts={toasts}
-        onDismiss={removeToast}
-        onOpenCart={() => setIsCartOpen(true)}
-      />
-    </div>
+        <MoodQuizModal
+          isOpen={isMoodQuizOpen}
+          onClose={() => setIsMoodQuizOpen(false)}
+          onSelectProduct={(product) => setSelectedProduct(product)}
+          onAddToCart={(product) => handleAddToCart(product, 1)}
+        />
+      </div>
+    </ErrorBoundary>
   );
 }
