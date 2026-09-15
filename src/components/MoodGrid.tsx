@@ -167,6 +167,10 @@ export const MoodGrid: React.FC<MoodGridProps> = ({
                     size="md"
                     className="transform transition-transform duration-500 group-hover:scale-105"
                   />
+                  <div className="absolute bottom-1 sm:bottom-2 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-1 group-hover:translate-y-0 bg-[#7B2638] text-white text-[9px] font-mono uppercase tracking-widest px-2.5 py-0.5 rounded-full flex items-center gap-1 shadow-xs pointer-events-none">
+                    <Sparkles className="w-2.5 h-2.5" />
+                    <span>3D INSPECT</span>
+                  </div>
                 </div>
 
                 {/* Bottom Details */}

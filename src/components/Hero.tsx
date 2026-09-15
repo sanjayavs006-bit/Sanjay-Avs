@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ArrowRight, Sparkles, Heart } from 'lucide-react';
 import { BalmCompactVisual } from './BalmCompactVisual';
+import { ThreeBalmViewer } from './ThreeBalmViewer';
 import { MOODY_PRODUCTS } from '../data/moodyProducts';
 import { Product } from '../types';
 
@@ -13,6 +14,7 @@ interface HeroProps {
 export const Hero: React.FC<HeroProps> = ({ onShopAll, onOpenMoodQuiz, onSelectProduct }) => {
   // Featured heroes to toggle: HEART (#01) and TEDDY (#02)
   const [featuredIdx, setFeaturedIdx] = useState(0);
+  const [hero3DMode, setHero3DMode] = useState(false);
   const featuredProduct = MOODY_PRODUCTS[featuredIdx];
 
   return (
@@ -130,7 +132,7 @@ export const Hero: React.FC<HeroProps> = ({ onShopAll, onOpenMoodQuiz, onSelectP
           {/* Right Column: High-Fashion Beauty Editorial + Compact Packaging Composition (7 cols) */}
           <div className="lg:col-span-6 relative flex flex-col items-center justify-center">
             {/* Main Creative Split Card */}
-            <div className="relative w-full max-w-lg aspect-[4/5] sm:aspect-[1/1] bg-[#FFFFFF] rounded-2xl p-6 sm:p-8 shadow-compact border border-[#E8D3C2] flex flex-col justify-between overflow-hidden group">
+            <div className="relative w-full max-w-lg min-h-[460px] bg-[#FFFFFF] rounded-2xl p-6 sm:p-8 shadow-compact border border-[#E8D3C2] flex flex-col justify-between overflow-hidden group">
               {/* Background ambient blush splash */}
               <div
                 className="absolute inset-0 opacity-20 pointer-events-none transition-colors duration-500"
@@ -145,54 +147,84 @@ export const Hero: React.FC<HeroProps> = ({ onShopAll, onOpenMoodQuiz, onSelectP
                     CAMPAIGN NO. {featuredProduct.number}
                   </span>
                 </div>
-                <span className="text-xs font-serif italic text-[#7B2638]">{featuredProduct.quote}</span>
+                {/* 3D Motion Mode Selector in Hero */}
+                <div className="flex items-center gap-1.5 bg-[#FFF8F2] p-1 rounded-full border border-[#E8D3C2]">
+                  <button
+                    onClick={() => setHero3DMode(false)}
+                    className={`px-2.5 py-0.5 rounded-full text-[9px] font-mono font-bold uppercase transition-all cursor-pointer ${
+                      !hero3DMode ? 'bg-[#7B2638] text-white shadow-2xs' : 'text-[#111111]/70 hover:text-[#7B2638]'
+                    }`}
+                  >
+                    EDITORIAL
+                  </button>
+                  <button
+                    onClick={() => setHero3DMode(true)}
+                    className={`px-2.5 py-0.5 rounded-full text-[9px] font-mono font-bold uppercase transition-all cursor-pointer flex items-center gap-1 ${
+                      hero3DMode ? 'bg-[#7B2638] text-white shadow-2xs' : 'text-[#7B2638] hover:text-[#111111]'
+                    }`}
+                  >
+                    <Sparkles className="w-2.5 h-2.5" />
+                    <span>3D ORBIT</span>
+                  </button>
+                </div>
               </div>
 
-              {/* Center Composition: The Round Pink Compact + Model Inset */}
-              <div className="relative z-10 my-auto flex flex-col items-center justify-center py-4">
-                {/* Visual Compact Container */}
-                <div
-                  className="cursor-pointer"
-                  onClick={() => onSelectProduct(featuredProduct)}
-                  title="Click to view details"
-                >
-                  <BalmCompactVisual
+              {/* Center Composition: The Round Compact or Live 3D Model Canvas */}
+              {hero3DMode ? (
+                <div className="relative z-10 my-auto w-full flex flex-col items-center justify-center py-1">
+                  <ThreeBalmViewer
                     product={featuredProduct}
-                    size="lg"
-                    view="top"
-                    className="transform transition-transform duration-700 group-hover:scale-105"
+                    heightClass="h-[320px] sm:h-[350px]"
+                    showControls={true}
                   />
                 </div>
+              ) : (
+                <div className="relative z-10 my-auto flex flex-col items-center justify-center py-4">
+                  {/* Visual Compact Container with 3D Tilt */}
+                  <div
+                    className="cursor-pointer"
+                    onClick={() => onSelectProduct(featuredProduct)}
+                    title="Click to view full details"
+                  >
+                    <BalmCompactVisual
+                      product={featuredProduct}
+                      size="lg"
+                      view="top"
+                      enable3DTilt={true}
+                      className="transform transition-transform duration-700 group-hover:scale-105"
+                    />
+                  </div>
 
-                {/* Floating Authentic Beauty Model Inset Card */}
-                <div className="absolute -bottom-2 -right-2 sm:-right-4 w-32 sm:w-40 aspect-[3/4] rounded-xl overflow-hidden shadow-xl border-2 border-white bg-[#F8DDE0]">
-                  <img
-                    src={featuredProduct.modelImage}
-                    alt={`${featuredProduct.name} Beauty Model`}
-                    className="w-full h-full object-cover object-center transform transition-transform duration-500 hover:scale-110"
-                  />
-                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-2 text-white">
-                    <span className="text-[9px] font-bold uppercase tracking-wider block">
-                      {featuredProduct.personality}
-                    </span>
-                    <span className="text-[8px] text-white/80 block">Hydrated Gloss Finish</span>
+                  {/* Floating Authentic Beauty Model Inset Card */}
+                  <div className="absolute -bottom-2 -right-2 sm:-right-4 w-32 sm:w-40 aspect-[3/4] rounded-xl overflow-hidden shadow-xl border-2 border-white bg-[#F8DDE0]">
+                    <img
+                      src={featuredProduct.modelImage}
+                      alt={`${featuredProduct.name} Beauty Model`}
+                      className="w-full h-full object-cover object-center transform transition-transform duration-500 hover:scale-110"
+                    />
+                    <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-2 text-white">
+                      <span className="text-[9px] font-bold uppercase tracking-wider block">
+                        {featuredProduct.personality}
+                      </span>
+                      <span className="text-[8px] text-white/80 block">Hydrated Gloss Finish</span>
+                    </div>
+                  </div>
+
+                  {/* Floating Authentic Lip Macro Inset Card */}
+                  <div className="absolute -top-2 -left-2 sm:-left-4 w-24 sm:w-28 aspect-square rounded-full overflow-hidden shadow-lg border-2 border-white bg-[#F8DDE0] hidden sm:block">
+                    <img
+                      src={featuredProduct.lipMacroImage}
+                      alt="Hydrated Lip Texture"
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute inset-0 bg-black/15 flex items-center justify-center">
+                      <span className="text-[8px] font-bold uppercase tracking-wider text-white bg-black/50 px-1.5 py-0.5 rounded-full">
+                        GLAZE
+                      </span>
+                    </div>
                   </div>
                 </div>
-
-                {/* Floating Authentic Lip Macro Inset Card */}
-                <div className="absolute -top-2 -left-2 sm:-left-4 w-24 sm:w-28 aspect-square rounded-full overflow-hidden shadow-lg border-2 border-white bg-[#F8DDE0] hidden sm:block">
-                  <img
-                    src={featuredProduct.lipMacroImage}
-                    alt="Hydrated Lip Texture"
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute inset-0 bg-black/15 flex items-center justify-center">
-                    <span className="text-[8px] font-bold uppercase tracking-wider text-white bg-black/50 px-1.5 py-0.5 rounded-full">
-                      GLAZE
-                    </span>
-                  </div>
-                </div>
-              </div>
+              )}
 
               {/* Bottom Details on Studio Card */}
               <div className="relative z-10 pt-4 border-t border-[#E8D3C2]/80 flex items-center justify-between">

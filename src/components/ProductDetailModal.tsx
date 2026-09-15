@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Product } from '../types';
 import { BalmCompactVisual } from './BalmCompactVisual';
+import { ThreeBalmViewer } from './ThreeBalmViewer';
 import {
   X,
   Heart,
@@ -13,6 +14,7 @@ import {
   ShieldCheck,
   Truck,
   Leaf,
+  Layers,
 } from 'lucide-react';
 
 interface ProductDetailModalProps {
@@ -30,7 +32,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
   onToggleWishlist,
   isWishlisted,
 }) => {
-  const [activeMediaTab, setActiveMediaTab] = useState<'top' | 'open' | 'side' | 'model' | 'lip'>('top');
+  const [activeMediaTab, setActiveMediaTab] = useState<'3d' | 'top' | 'open' | 'side' | 'bottom' | 'model' | 'lip'>('3d');
   const [quantity, setQuantity] = useState(1);
   const [justAdded, setJustAdded] = useState(false);
   const [openAccordion, setOpenAccordion] = useState<string>('inside');
@@ -64,59 +66,85 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
           {/* Left Column: Media Stage & Angle Switcher (6 cols) */}
           <div className="md:col-span-6 p-6 sm:p-8 bg-white border-b md:border-b-0 md:border-r border-[#E8D3C2] flex flex-col justify-between">
             {/* Media Display Window */}
-            <div className="relative aspect-square w-full rounded-2xl bg-[#FFF8F2] border border-[#E8D3C2]/80 flex items-center justify-center overflow-hidden">
-              {/* Top Lid View */}
-              {activeMediaTab === 'top' && (
-                <BalmCompactVisual product={product} view="top" size="xl" />
-              )}
+            {activeMediaTab === '3d' ? (
+              <div className="w-full flex flex-col items-center">
+                <ThreeBalmViewer
+                  product={product}
+                  heightClass="h-[280px] sm:h-[340px]"
+                  showControls={true}
+                />
+              </div>
+            ) : (
+              <div className="relative aspect-square w-full rounded-2xl bg-[#FFF8F2] border border-[#E8D3C2]/80 flex items-center justify-center overflow-hidden">
+                {/* Top Lid View */}
+                {activeMediaTab === 'top' && (
+                  <BalmCompactVisual product={product} view="top" size="xl" enable3DTilt={true} />
+                )}
 
-              {/* Open Balm Core View */}
-              {activeMediaTab === 'open' && (
-                <BalmCompactVisual product={product} view="open" size="xl" />
-              )}
+                {/* Open Balm Core View */}
+                {activeMediaTab === 'open' && (
+                  <BalmCompactVisual product={product} view="open" size="xl" enable3DTilt={true} />
+                )}
 
-              {/* Side Profile View */}
-              {activeMediaTab === 'side' && (
-                <BalmCompactVisual product={product} view="side" size="xl" />
-              )}
+                {/* Side Profile View */}
+                {activeMediaTab === 'side' && (
+                  <BalmCompactVisual product={product} view="side" size="xl" enable3DTilt={true} />
+                )}
 
-              {/* Campaign Beauty Model Portrait */}
-              {activeMediaTab === 'model' && (
-                <div className="w-full h-full relative">
-                  <img
-                    src={product.modelImage}
-                    alt={`${product.name} Campaign Model`}
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-3 text-white">
-                    <span className="text-[10px] font-mono tracking-widest uppercase block">
-                      EDITORIAL CAMPAIGN
-                    </span>
-                    <span className="text-xs font-bold">{product.finish}</span>
+                {/* Bottom Inspection View */}
+                {activeMediaTab === 'bottom' && (
+                  <BalmCompactVisual product={product} view="bottom" size="xl" enable3DTilt={true} />
+                )}
+
+                {/* Campaign Beauty Model Portrait */}
+                {activeMediaTab === 'model' && (
+                  <div className="w-full h-full relative">
+                    <img
+                      src={product.modelImage}
+                      alt={`${product.name} Campaign Model`}
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-3 text-white">
+                      <span className="text-[10px] font-mono tracking-widest uppercase block">
+                        EDITORIAL CAMPAIGN
+                      </span>
+                      <span className="text-xs font-bold">{product.finish}</span>
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
 
-              {/* Lip Macro Hydrated Glaze */}
-              {activeMediaTab === 'lip' && (
-                <div className="w-full h-full relative">
-                  <img
-                    src={product.lipMacroImage}
-                    alt={`${product.name} Macro Lip`}
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-3 text-white">
-                    <span className="text-[10px] font-mono tracking-widest uppercase block">
-                      MACRO LIP FINISH
-                    </span>
-                    <span className="text-xs font-bold">{product.flavor}</span>
+                {/* Lip Macro Hydrated Glaze */}
+                {activeMediaTab === 'lip' && (
+                  <div className="w-full h-full relative">
+                    <img
+                      src={product.lipMacroImage}
+                      alt={`${product.name} Macro Lip`}
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-3 text-white">
+                      <span className="text-[10px] font-mono tracking-widest uppercase block">
+                        MACRO LIP FINISH
+                      </span>
+                      <span className="text-xs font-bold">{product.flavor}</span>
+                    </div>
                   </div>
-                </div>
-              )}
-            </div>
+                )}
+              </div>
+            )}
 
             {/* Thumbnail Navigation */}
-            <div className="flex items-center gap-2 pt-4 overflow-x-auto no-scrollbar">
+            <div className="flex items-center gap-1.5 pt-4 overflow-x-auto no-scrollbar">
+              <button
+                onClick={() => setActiveMediaTab('3d')}
+                className={`px-3 py-2 rounded-xl text-[10px] font-bold uppercase tracking-wider border cursor-pointer whitespace-nowrap flex items-center gap-1 ${
+                  activeMediaTab === '3d'
+                    ? 'bg-[#7B2638] text-white border-[#7B2638] shadow-xs'
+                    : 'bg-[#F8DDE0] text-[#7B2638] border-[#7B2638]/30 font-black'
+                }`}
+              >
+                <Sparkles className="w-3 h-3" />
+                <span>3D ORBIT & MOTION</span>
+              </button>
               <button
                 onClick={() => setActiveMediaTab('top')}
                 className={`px-3 py-2 rounded-xl text-[10px] font-bold uppercase tracking-wider border cursor-pointer whitespace-nowrap ${
@@ -125,7 +153,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                     : 'bg-[#FFF8F2] border-[#E8D3C2] text-[#111111]'
                 }`}
               >
-                LID ARTWORK
+                LID
               </button>
               <button
                 onClick={() => setActiveMediaTab('open')}
@@ -135,7 +163,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                     : 'bg-[#FFF8F2] border-[#E8D3C2] text-[#111111]'
                 }`}
               >
-                OPEN BALM
+                OPEN
               </button>
               <button
                 onClick={() => setActiveMediaTab('side')}
@@ -145,7 +173,17 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                     : 'bg-[#FFF8F2] border-[#E8D3C2] text-[#111111]'
                 }`}
               >
-                SIDE PROFILE
+                SIDE
+              </button>
+              <button
+                onClick={() => setActiveMediaTab('bottom')}
+                className={`px-3 py-2 rounded-xl text-[10px] font-bold uppercase tracking-wider border cursor-pointer whitespace-nowrap ${
+                  activeMediaTab === 'bottom'
+                    ? 'bg-[#7B2638] text-white border-[#7B2638]'
+                    : 'bg-[#FFF8F2] border-[#E8D3C2] text-[#111111]'
+                }`}
+              >
+                BOTTOM
               </button>
               <button
                 onClick={() => setActiveMediaTab('model')}
@@ -165,7 +203,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                     : 'bg-[#FFF8F2] border-[#E8D3C2] text-[#111111]'
                 }`}
               >
-                LIP GLOSS
+                LIP
               </button>
             </div>
           </div>
