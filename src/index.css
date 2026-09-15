@@ -1,0 +1,43 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --color-fashion-red: #E30613;
+  --color-fashion-black: #000000;
+  --color-fashion-charcoal: #171717;
+  --color-fashion-offwhite: #F7F7F5;
+  --color-fashion-grey: #E5E5E5;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    color: #000000;
+    background-color: #FFFFFF;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+/* Minimalist scrollbar */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: #F7F7F5;
+}
+::-webkit-scrollbar-thumb {
+  background: #C4C4C4;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #000000;
+}
+
+/* Image aspect ratios */
+.aspect-fashion {
+  aspect-ratio: 3 / 4;
+}

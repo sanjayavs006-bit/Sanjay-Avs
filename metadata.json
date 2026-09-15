@@ -1,0 +1,6 @@
+{
+  "name": "MOODY MATCH",
+  "description": "High-fashion editorial modern apparel store inspired by minimalist fast-fashion aesthetics. Bold red campaign imagery, clean typography, and spacious contemporary styling.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

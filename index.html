@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MOODY MATCH — High-Fashion Editorial & Essentials</title>
+    <script>
+      // Safeguard against third-party Web3 wallet extension collisions (e.g. MetaMask / Coinbase / Brave)
+      (function() {
+        try {
+          // 1. Intercept global error and unhandled rejection events from extensions in the capture phase
+          window.addEventListener('error', function(event) {
+            var msg = (event && (event.message || (event.error && event.error.message))) || '';
+            var source = (event && event.filename) || '';
+            if (
+              msg.indexOf('ethereum') !== -1 ||
+              msg.indexOf('MetaMask') !== -1 ||
+              msg.indexOf('metamask') !== -1 ||
+              msg.indexOf('Cannot redefine property') !== -1 ||
+              msg.indexOf('Failed to connect to MetaMask') !== -1 ||
+              source.indexOf('extension') !== -1
+            ) {
+              if (event.preventDefault) event.preventDefault();
+              if (event.stopImmediatePropagation) event.stopImmediatePropagation();
+              return true;
+            }
+          }, true);
+
+          window.addEventListener('unhandledrejection', function(event) {
+            var reason = event && (event.reason ? (event.reason.message || event.reason) : '');
+            var reasonStr = String(reason || '');
+            if (
+              reasonStr.indexOf('ethereum') !== -1 ||
+              reasonStr.indexOf('MetaMask') !== -1 ||
+              reasonStr.indexOf('metamask') !== -1 ||
+              reasonStr.indexOf('Failed to connect to MetaMask') !== -1 ||
+              reasonStr.indexOf('Cannot redefine property') !== -1
+            ) {
+              if (event.preventDefault) event.preventDefault();
+              if (event.stopImmediatePropagation) event.stopImmediatePropagation();
+            }
+          }, true);
+
+          // 2. Safeguard Object.defineProperty on window.ethereum so multiple extensions do not throw
+          var originalDefineProperty = Object.defineProperty;
+          Object.defineProperty = function(target, prop, descriptor) {
+            if ((target === window || target === globalThis || target === self) && prop === 'ethereum') {
+              try {
+                var safeDescriptor = Object.assign({}, descriptor, { configurable: true });
+                return originalDefineProperty.call(Object, target, prop, safeDescriptor);
+              } catch (e) {
+                // If it was already non-configurable, do not re-throw
+                try {
+                  if (descriptor && 'value' in descriptor) {
+                    target[prop] = descriptor.value;
+                  }
+                } catch (_) {}
+                return target;
+              }
+            }
+            return originalDefineProperty.call(Object, target, prop, descriptor);
+          };
+
+          // 3. Pre-create a configurable, flexible window.ethereum container
+          var _storedEthereum = window.ethereum;
+          try {
+            originalDefineProperty.call(Object, window, 'ethereum', {
+              configurable: true,
+              enumerable: true,
+              get: function() { return _storedEthereum; },
+              set: function(val) { _storedEthereum = val; }
+            });
+          } catch (_) {}
+        } catch (_) {}
+      })();
+    </script>
+    <meta name="description" content="Minimalist, editorial, bold, and fashion-forward apparel. Explore modern essentials, contemporary tailoring, denim, and new arrivals." />
+    <meta property="og:title" content="MOODY MATCH — High-Fashion Editorial & Essentials" />
+    <meta property="og:description" content="Minimalist, editorial, bold, and fashion-forward apparel. Explore modern essentials, contemporary tailoring, denim, and new arrivals." />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  </head>
+  <body class="bg-[#FFFFFF] text-[#000000] font-sans antialiased selection:bg-[#E30613] selection:text-white">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+
